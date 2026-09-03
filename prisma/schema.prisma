@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// A single Survivor season (e.g. Season 51). Everything else hangs off one.
+model Season {
+  id          Int      @id @default(autoincrement())
+  number      Int      @unique // 51
+  name        String // "The Open Era"
+  isActive    Boolean  @default(true)
+  draftLocked Boolean  @default(false) // once true, participants can no longer change their picks
+  mergeWeek   Int? // week number merge happened; null until admin sets it
+  createdAt   DateTime @default(now())
+
+  // Scoring rules, kept per-season so future seasons can change them without a migration.
+  challengeWinPreMerge   Int @default(2)
+  tribalSurvivePreMerge  Int @default(1)
+  challengeWinPostMerge  Int @default(5)
+  tribalSurvivePostMerge Int @default(2)
+  firstPlacePoints       Int @default(10)
+  secondPlacePoints      Int @default(5)
+  thirdPlacePoints       Int @default(3)
+  powerPlayerMultiplier  Int @default(2)
+  powerPlayerWinBonus    Int @default(50)
+
+  tribes      Tribe[]
+  castaways   Castaway[]
+  teams       FantasyTeam[]
+  scoreEvents ScoreEvent[]
+}
+
+model Tribe {
+  id       Int    @id @default(autoincrement())
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  seasonId Int
+  name     String
+  color    String @default("#6b7280") // hex color used for the tribe badge/header
+
+  castaways Castaway[]
+
+  @@unique([seasonId, name])
+}
+
+model Castaway {
+  id        Int     @id @default(autoincrement())
+  season    Season  @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  seasonId  Int
+  name      String
+  bio       String?
+  photoUrl  String?
+  tribe     Tribe?  @relation(fields: [tribeId], references: [id], onDelete: SetNull)
+  tribeId   Int?
+  sortOrder Int     @default(0)
+
+  isEliminated   Boolean @default(false)
+  eliminatedWeek Int?
+  placement      Int? // 1 = sole survivor, 2 = runner up, 3 = third place, etc. Set at end of season.
+
+  picks       TeamPick[]
+  scoreEvents ScoreEvent[]
+
+  @@unique([seasonId, name])
+}
+
+// One participant's roster for a season.
+model FantasyTeam {
+  id        Int      @id @default(autoincrement())
+  season    Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  seasonId  Int
+  ownerName String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  picks TeamPick[]
+
+  @@unique([seasonId, ownerName])
+}
+
+// A single drafted castaway on a team. Exactly 5 per team, 1 of which is flagged as Power Player.
+model TeamPick {
+  id            Int         @id @default(autoincrement())
+  team          FantasyTeam @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId        Int
+  castaway      Castaway    @relation(fields: [castawayId], references: [id], onDelete: Cascade)
+  castawayId    Int
+  isPowerPlayer Boolean     @default(false)
+
+  @@unique([teamId, castawayId])
+}
+
+enum ScoreEventType {
+  CHALLENGE_WIN
+  TRIBAL_SURVIVE
+  FINAL_PLACEMENT
+  CUSTOM
+}
+
+// One scoring event for one castaway in one week, entered by an admin as episodes air.
+// `points` is stored pre-computed (based on the season's rules at the time it was entered)
+// so past weeks never silently change if the rules are edited later.
+model ScoreEvent {
+  id         Int            @id @default(autoincrement())
+  season     Season         @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  seasonId   Int
+  castaway   Castaway       @relation(fields: [castawayId], references: [id], onDelete: Cascade)
+  castawayId Int
+  week       Int
+  type       ScoreEventType
+  label      String // e.g. "Won reward challenge", "Survived tribal", "Sole Survivor"
+  points     Int
+  createdAt  DateTime       @default(now())
+}
