@@ -4,6 +4,7 @@ import { requireSession } from "@/lib/auth";
 import { unlockTeam } from "@/lib/actions/team";
 import { NoSeasonYet } from "@/components/no-season-yet";
 import { JoinForm } from "./join-form";
+import { TeamRoster } from "./team-roster";
 
 export default async function JoinPage() {
   const session = await requireSession();
@@ -29,7 +30,20 @@ export default async function JoinPage() {
 
   const seasonLocked = season.draftLocked;
   const teamLocked = existingTeam?.locked ?? false;
-  const locked = (seasonLocked || teamLocked) && !isAdmin;
+  // Once the draft is locked (season-wide, or this team locked itself in), picks can no longer
+  // change for a regular participant.
+  const isLockedForParticipant = (seasonLocked || teamLocked) && !isAdmin;
+
+  const powerPlayerId = existingTeam?.picks.find((p) => p.isPowerPlayer)?.castawayId ?? null;
+  const pickedCastaways = existingTeam
+    ? existingTeam.picks
+        .map((pick) => castaways.find((c) => c.id === pick.castawayId))
+        .filter((c): c is (typeof castaways)[number] => c != null)
+    : [];
+  // Shown to everyone (admins included) once the draft's locked and there's a roster to show -
+  // an admin who's also a participant should still get to see their own reveal, not just the
+  // editable form their bypass would otherwise leave them stuck with.
+  const showReveal = (seasonLocked || teamLocked) && pickedCastaways.length > 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -63,14 +77,29 @@ export default async function JoinPage() {
         )}
       </div>
 
-      <JoinForm
-        key={existingTeam?.id ?? "new"}
-        castaways={castaways}
-        selectedIds={existingTeam?.picks.map((p) => p.castawayId) ?? []}
-        powerPlayerId={existingTeam?.picks.find((p) => p.isPowerPlayer)?.castawayId ?? null}
-        locked={locked}
-        alreadyLocked={teamLocked}
-      />
+      {showReveal && <TeamRoster castaways={pickedCastaways} powerPlayerId={powerPlayerId} />}
+
+      {isLockedForParticipant && pickedCastaways.length === 0 && (
+        <p className="rounded-2xl bg-white/90 p-5 text-sm text-neutral-500 shadow-lg backdrop-blur-sm">
+          You didn&apos;t draft a team before the draft locked.
+        </p>
+      )}
+
+      {showReveal && isAdmin && (
+        <p className="text-xs text-neutral-500">
+          You can still edit below since you&apos;re the commissioner.
+        </p>
+      )}
+
+      {(isAdmin || !isLockedForParticipant) && (
+        <JoinForm
+          key={existingTeam?.id ?? "new"}
+          castaways={castaways}
+          selectedIds={existingTeam?.picks.map((p) => p.castawayId) ?? []}
+          powerPlayerId={powerPlayerId}
+          alreadyLocked={teamLocked}
+        />
+      )}
     </div>
   );
 }

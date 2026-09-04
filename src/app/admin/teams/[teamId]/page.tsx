@@ -80,7 +80,6 @@ export default async function AdminTeamDetailPage({
         castaways={castaways}
         selectedIds={team.picks.map((p) => p.castawayId)}
         powerPlayerId={team.picks.find((p) => p.isPowerPlayer)?.castawayId ?? null}
-        locked={false}
         alreadyLocked={team.locked}
         teamId={team.id}
       />

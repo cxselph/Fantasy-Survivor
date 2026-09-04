@@ -8,14 +8,12 @@ export function JoinForm({
   castaways,
   selectedIds,
   powerPlayerId,
-  locked,
   alreadyLocked,
   teamId,
 }: {
   castaways: Castaway[];
   selectedIds: number[];
   powerPlayerId: number | null;
-  locked: boolean;
   alreadyLocked: boolean;
   teamId?: number;
 }) {
@@ -48,7 +46,7 @@ export function JoinForm({
       className="flex flex-col gap-4 rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm"
     >
       {teamId != null && <input type="hidden" name="teamId" value={teamId} />}
-      <fieldset disabled={locked} className="flex flex-col gap-4 disabled:opacity-60">
+      <fieldset className="flex flex-col gap-4">
         <div className="text-sm text-neutral-600">
           Selected {selected.size} / 5
           {powerPlayer == null && selected.size === 5 && (
