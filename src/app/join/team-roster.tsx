@@ -24,7 +24,7 @@ export function TeamRoster({
           return (
             <div
               key={castaway.id}
-              className={`flex flex-col overflow-hidden rounded-xl border bg-white shadow-md transition hover:shadow-xl ${
+              className={`flex flex-col overflow-hidden rounded-xl border bg-white shadow-md transition hover:-translate-y-0.5 hover:shadow-xl ${
                 isPowerPlayer ? "border-accent-400 ring-2 ring-accent-300" : "border-neutral-200"
               }`}
             >
@@ -47,32 +47,36 @@ export function TeamRoster({
                   </div>
                 )}
                 {isPowerPlayer && (
-                  <span className="absolute left-1 top-1 rounded-full bg-accent-600 px-2 py-0.5 text-xs font-bold text-white shadow">
+                  <span className="absolute left-1 top-1 whitespace-nowrap rounded-full bg-accent-600 px-2 py-0.5 text-xs font-bold text-white shadow">
                     ⭐ Power Player
                   </span>
                 )}
                 {castaway.placement === 1 && (
-                  <span className="absolute right-1 top-1 text-2xl" title="Sole Survivor">
+                  <span className="absolute right-1 top-1 text-2xl drop-shadow" title="Sole Survivor">
                     🏆
                   </span>
                 )}
-              </div>
-              <div className="flex flex-col gap-0.5 p-2">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-sm font-semibold">{castaway.name}</span>
-                  <span className="font-mono text-xs text-neutral-500">{points} pts</span>
-                </div>
                 {castaway.isEliminated && castaway.eliminatedWeek != null && (
-                  <span className="text-xs font-medium text-red-600">Voted out — Week {castaway.eliminatedWeek}</span>
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-1 pt-4 text-center text-[11px] font-semibold text-white">
+                    Voted out — Wk {castaway.eliminatedWeek}
+                  </span>
                 )}
+              </div>
+              <div className="flex items-center justify-between gap-2 p-2">
+                <span className="truncate text-sm font-semibold" title={castaway.name}>
+                  {castaway.name}
+                </span>
+                <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 font-mono text-xs font-semibold text-neutral-600">
+                  {points}
+                </span>
               </div>
             </div>
           );
         })}
       </div>
-      <div className="mt-4 flex items-center justify-between border-t border-neutral-100 pt-3">
-        <span className="text-sm font-medium text-neutral-600">Total points</span>
-        <span className="font-mono text-lg font-bold text-accent-700">{totalPoints}</span>
+      <div className="mt-4 flex items-center justify-between rounded-xl bg-accent-50 px-4 py-3">
+        <span className="text-sm font-semibold text-accent-700">Team Total</span>
+        <span className="font-mono text-2xl font-bold text-accent-700">{totalPoints}</span>
       </div>
     </div>
   );
