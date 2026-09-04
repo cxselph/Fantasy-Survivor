@@ -9,7 +9,9 @@ import { ScoreEventType } from "@/generated/prisma/enums";
 function refresh() {
   revalidatePath("/");
   revalidatePath("/cast");
+  revalidatePath("/join");
   revalidatePath("/admin/scoring");
+  revalidatePath("/admin/cast");
 }
 
 export type FormState = { error?: string; success?: boolean };
@@ -33,6 +35,10 @@ export async function saveWeeklyResults(
 
   await prisma.$transaction(async (tx) => {
     for (const castaway of castaways) {
+      // Once voted out, a castaway is done for the season - their scoring row is
+      // disabled on the form (no fields submitted for them), and past weeks stay as-is.
+      if (castaway.isEliminated) continue;
+
       await tx.scoreEvent.deleteMany({
         where: {
           castawayId: castaway.id,
@@ -69,8 +75,17 @@ export async function saveWeeklyResults(
         });
       }
 
-      if (placement && castaway.placement !== placement) {
-        await tx.castaway.update({ where: { id: castaway.id }, data: { placement } });
+      // Reaching the finale (a placement) means they made it - not "voted out".
+      // Otherwise, not surviving tribal this week means they were voted out this week.
+      if (placement) {
+        if (castaway.placement !== placement) {
+          await tx.castaway.update({ where: { id: castaway.id }, data: { placement } });
+        }
+      } else if (!survivedTribal) {
+        await tx.castaway.update({
+          where: { id: castaway.id },
+          data: { isEliminated: true, eliminatedWeek: week },
+        });
       }
     }
   });

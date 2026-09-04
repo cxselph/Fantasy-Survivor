@@ -64,7 +64,7 @@ export default async function AdminScoringPage({
       </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
-        <WeeklyForm week={week} castaways={castaways} entries={entries} />
+        <WeeklyForm key={week} week={week} castaways={castaways} entries={entries} />
       </section>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">

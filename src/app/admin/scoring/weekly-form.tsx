@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Castaway } from "@/generated/prisma/client";
 import { saveWeeklyResults } from "@/lib/actions/scoring";
 
@@ -20,20 +21,55 @@ export function WeeklyForm({
   entries: Map<number, WeeklyEntry>;
 }) {
   const [state, formAction, pending] = useActionState(saveWeeklyResults, undefined);
+  const router = useRouter();
+  const [weekInput, setWeekInput] = useState(week.toString());
+
+  function goToWeek(nextWeek: number) {
+    if (!Number.isInteger(nextWeek) || nextWeek < 1) return;
+    router.push(`/admin/scoring?week=${nextWeek}`);
+  }
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <label className="flex w-32 flex-col gap-1 text-sm font-medium">
-        Week
-        <input
-          type="number"
-          name="week"
-          min={1}
-          defaultValue={week}
-          required
-          className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
-        />
-      </label>
+      <div className="flex items-end gap-2">
+        <label className="flex w-32 flex-col gap-1 text-sm font-medium">
+          Week
+          <input
+            type="number"
+            name="week"
+            min={1}
+            value={weekInput}
+            required
+            onChange={(e) => setWeekInput(e.target.value)}
+            onBlur={() => goToWeek(Number(weekInput))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                goToWeek(Number(weekInput));
+              }
+            }}
+            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => goToWeek(week - 1)}
+          disabled={week <= 1}
+          className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 disabled:opacity-40"
+        >
+          ← Previous week
+        </button>
+        <button
+          type="button"
+          onClick={() => goToWeek(week + 1)}
+          className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+        >
+          Next week →
+        </button>
+        <span className="pb-2 text-xs text-neutral-400">
+          Jump to any week to view or correct what was entered.
+        </span>
+      </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -48,23 +84,42 @@ export function WeeklyForm({
           <tbody>
             {castaways.map((castaway) => {
               const entry = entries.get(castaway.id);
+              const isOut = castaway.isEliminated;
               return (
                 <tr
                   key={castaway.id}
-                  className={`border-b border-neutral-100 ${castaway.isEliminated ? "text-neutral-400" : ""}`}
+                  className={`border-b border-neutral-100 ${isOut ? "text-neutral-400" : ""}`}
                 >
-                  <td className="py-1.5 pr-2 font-medium">{castaway.name}</td>
-                  <td className="py-1.5">
-                    <input type="checkbox" name={`challenge_${castaway.id}`} defaultChecked={entry?.challenge} />
+                  <td className="py-1.5 pr-2 font-medium">
+                    {castaway.name}
+                    {isOut && (
+                      <span className="ml-2 text-xs font-normal text-neutral-400">
+                        (voted out{castaway.eliminatedWeek != null ? ` — Wk ${castaway.eliminatedWeek}` : ""})
+                      </span>
+                    )}
                   </td>
                   <td className="py-1.5">
-                    <input type="checkbox" name={`tribal_${castaway.id}`} defaultChecked={entry?.tribal} />
+                    <input
+                      type="checkbox"
+                      name={`challenge_${castaway.id}`}
+                      defaultChecked={entry?.challenge}
+                      disabled={isOut}
+                    />
+                  </td>
+                  <td className="py-1.5">
+                    <input
+                      type="checkbox"
+                      name={`tribal_${castaway.id}`}
+                      defaultChecked={entry?.tribal}
+                      disabled={isOut}
+                    />
                   </td>
                   <td className="py-1.5">
                     <select
                       name={`placement_${castaway.id}`}
                       defaultValue={entry?.placement ?? ""}
-                      className="rounded border border-neutral-300 px-1 py-0.5 text-xs"
+                      disabled={isOut}
+                      className="rounded border border-neutral-300 px-1 py-0.5 text-xs disabled:bg-neutral-100"
                     >
                       <option value="">—</option>
                       <option value={1}>1st (Sole Survivor)</option>
