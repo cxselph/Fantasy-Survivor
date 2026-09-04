@@ -116,7 +116,8 @@ model User {
 
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
-  sessionVersion      Int       @default(0) // bumped on password reset/unlock to invalidate outstanding JWTs
+  disabledAt          DateTime? // admin-controlled deactivation, distinct from the automatic lockout above
+  sessionVersion      Int       @default(0) // bumped on password reset/unlock/disable to invalidate outstanding JWTs
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -67,6 +67,7 @@ export async function getSession(): Promise<Session | null> {
   if (!user) return null;
   if (user.sessionVersion !== sessionVersion) return null;
   if (user.lockedUntil && user.lockedUntil > new Date()) return null;
+  if (user.disabledAt) return null;
 
   return {
     userId: user.id,

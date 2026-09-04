@@ -35,6 +35,10 @@ export async function login(
     return { error: GENERIC_ERROR };
   }
 
+  if (user.disabledAt) {
+    return { error: "This account has been disabled. Contact your league admin." };
+  }
+
   if (user.lockedUntil && user.lockedUntil > new Date()) {
     const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
     return { error: `Too many failed attempts. Try again in ${minutesLeft} minute${minutesLeft === 1 ? "" : "s"}.` };
