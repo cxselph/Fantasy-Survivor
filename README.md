@@ -2,7 +2,7 @@
 
 A small Next.js app for running the family/friends Fantasy Survivor League: password-gated
 signup, team drafting, a commissioner admin area for weekly scoring, and a live standings
-dashboard.
+dashboard. Deployed on Vercel with a Neon Postgres database.
 
 ## Stack
 
