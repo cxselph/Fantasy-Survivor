@@ -1,9 +1,11 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 
 export const SESSION_COOKIE = "fs_session";
-export type Role = "guest" | "admin";
+export type Role = "admin" | "member";
+export type Session = { userId: number; role: Role; name: string; email: string };
 
 function secretKey() {
   const secret = process.env.SESSION_SECRET;
@@ -11,38 +13,21 @@ function secretKey() {
   return new TextEncoder().encode(secret);
 }
 
-export async function createSession(role: Role) {
-  const token = await new SignJWT({ role })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("180d")
-    .sign(secretKey());
-
-  await setSessionCookie(token);
-}
-
-// Signs in a real (invited) user. Kept alongside the legacy createSession() during the
-// shared-password -> real-account transition; PR2 switches getSession() to read `userId` and
-// `sessionVersion` from this payload shape and retires createSession(role)/the "guest" role.
 export async function createUserSession({
   userId,
   role,
   sessionVersion,
 }: {
   userId: number;
-  role: "admin" | "member";
+  role: Role;
   sessionVersion: number;
 }) {
-  const token = await new SignJWT({ userId, role: role === "admin" ? "admin" : "guest", sessionVersion })
+  const token = await new SignJWT({ userId, role, sessionVersion })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("180d")
     .sign(secretKey());
 
-  await setSessionCookie(token);
-}
-
-async function setSessionCookie(token: string) {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
@@ -58,17 +43,37 @@ export async function destroySession() {
   cookieStore.delete(SESSION_COOKIE);
 }
 
-export async function getSession(): Promise<{ role: Role } | null> {
+// DB-aware: verifies the JWT signature, then re-checks the live User row so a lockout, role
+// change, or password reset (sessionVersion bump) invalidates an outstanding session immediately
+// rather than only blocking future logins. Costs one indexed PK lookup per authenticated request,
+// judged worth it at this app's traffic/scale - see the plan doc for the tradeoff discussion.
+export async function getSession(): Promise<Session | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
+
+  let userId: number;
+  let sessionVersion: number;
   try {
     const { payload } = await jwtVerify(token, secretKey());
-    if (payload.role !== "guest" && payload.role !== "admin") return null;
-    return { role: payload.role };
+    if (typeof payload.userId !== "number" || typeof payload.sessionVersion !== "number") return null;
+    userId = payload.userId;
+    sessionVersion = payload.sessionVersion;
   } catch {
     return null;
   }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return null;
+  if (user.sessionVersion !== sessionVersion) return null;
+  if (user.lockedUntil && user.lockedUntil > new Date()) return null;
+
+  return {
+    userId: user.id,
+    role: user.role === "ADMIN" ? "admin" : "member",
+    name: user.name,
+    email: user.email,
+  };
 }
 
 export async function requireSession() {

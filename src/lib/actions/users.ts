@@ -110,6 +110,12 @@ export async function updateInvite(
   return { success: `Invite updated and resent to ${email}.` };
 }
 
+export async function unlockUser(userId: number) {
+  await requireAdmin();
+  await prisma.user.update({ where: { id: userId }, data: { failedLoginAttempts: 0, lockedUntil: null } });
+  revalidatePath("/admin/users");
+}
+
 export type AcceptInviteState = { error?: string };
 
 export async function acceptInvite(

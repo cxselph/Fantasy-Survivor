@@ -6,18 +6,18 @@ import { saveTeam } from "@/lib/actions/team";
 
 export function JoinForm({
   castaways,
-  ownerName,
   selectedIds,
   powerPlayerId,
   locked,
   alreadyLocked,
+  teamId,
 }: {
   castaways: Castaway[];
-  ownerName: string;
   selectedIds: number[];
   powerPlayerId: number | null;
   locked: boolean;
   alreadyLocked: boolean;
+  teamId?: number;
 }) {
   const [state, formAction, pending] = useActionState(saveTeam, undefined);
   const [selected, setSelected] = useState<Set<number>>(new Set(selectedIds));
@@ -47,18 +47,8 @@ export function JoinForm({
       }}
       className="flex flex-col gap-4 rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm"
     >
+      {teamId != null && <input type="hidden" name="teamId" value={teamId} />}
       <fieldset disabled={locked} className="flex flex-col gap-4 disabled:opacity-60">
-        <label className="flex max-w-xs flex-col gap-1 text-sm font-medium">
-          Your name
-          <input
-            type="text"
-            name="ownerName"
-            defaultValue={ownerName}
-            required
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
-          />
-        </label>
-
         <div className="text-sm text-neutral-600">
           Selected {selected.size} / 5
           {powerPlayer == null && selected.size === 5 && (

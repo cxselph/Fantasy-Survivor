@@ -13,17 +13,18 @@ export async function saveTeam(
   formData: FormData,
 ): Promise<SaveTeamState> {
   const session = await requireSession();
+  const isAdmin = session.role === "admin";
 
-  const ownerName = String(formData.get("ownerName") || "").trim();
+  // Only meaningful for admins editing someone else's team from Admin -> Teams; a regular
+  // member's team is always their own, derived from the session, never from form input.
+  const adminTeamId = isAdmin && formData.get("teamId") ? Number(formData.get("teamId")) : null;
+
   const castawayIds = formData
     .getAll("castawayIds")
     .map((value) => Number(value))
     .filter((value) => Number.isInteger(value));
   const powerPlayerId = Number(formData.get("powerPlayerId"));
 
-  if (!ownerName) {
-    return { error: "Enter your name." };
-  }
   if (castawayIds.length !== 5) {
     return { error: `Pick exactly 5 castaways (you picked ${castawayIds.length}).` };
   }
@@ -32,25 +33,30 @@ export async function saveTeam(
   }
 
   const season = await getActiveSeason();
-  const isAdmin = session.role === "admin";
 
   if (season.draftLocked && !isAdmin) {
     return { error: "The draft is locked for this season — picks can no longer be changed." };
   }
 
-  const existing = await prisma.fantasyTeam.findUnique({
-    where: { seasonId_ownerName: { seasonId: season.id, ownerName } },
-  });
-
-  if (existing?.locked && !isAdmin) {
-    return { error: "This team is locked in. Ask the commissioner to unlock it if you need to make a change." };
+  let team;
+  if (adminTeamId) {
+    team = await prisma.fantasyTeam.findUnique({ where: { id: adminTeamId } });
+    if (!team) return { error: "Team not found." };
+  } else {
+    const existing = await prisma.fantasyTeam.findUnique({
+      where: { seasonId_userId: { seasonId: season.id, userId: session.userId } },
+    });
+    if (existing?.locked && !isAdmin) {
+      return { error: "This team is locked in. Ask the commissioner to unlock it if you need to make a change." };
+    }
+    team =
+      existing ??
+      (await prisma.fantasyTeam.create({
+        data: { seasonId: season.id, userId: session.userId, ownerName: session.name },
+      }));
   }
 
   const wantsLock = formData.get("lockTeam") === "on";
-  const team = existing
-    ? existing
-    : await prisma.fantasyTeam.create({ data: { seasonId: season.id, ownerName } });
-
   await prisma.$transaction([
     prisma.teamPick.deleteMany({ where: { teamId: team.id } }),
     prisma.teamPick.createMany({
@@ -66,13 +72,17 @@ export async function saveTeam(
 
   revalidatePath("/");
 
-  redirect(`/join?owner=${encodeURIComponent(ownerName)}`);
+  if (adminTeamId) {
+    redirect(`/admin/teams/${adminTeamId}`);
+  }
+  redirect("/join");
 }
 
 export async function unlockTeam(teamId: number) {
   await requireAdmin();
   await prisma.fantasyTeam.update({ where: { id: teamId }, data: { locked: false } });
   revalidatePath("/join");
+  revalidatePath("/admin/teams");
 }
 
 export async function deleteTeam(teamId: number) {
@@ -80,5 +90,11 @@ export async function deleteTeam(teamId: number) {
   // Cascades to the team's picks; doesn't touch the cast list or other teams.
   await prisma.fantasyTeam.delete({ where: { id: teamId } });
   revalidatePath("/");
-  redirect("/join");
+  redirect("/admin/teams");
+}
+
+export async function unlinkTeamUser(teamId: number) {
+  await requireAdmin();
+  await prisma.fantasyTeam.update({ where: { id: teamId }, data: { userId: null } });
+  revalidatePath("/admin/teams");
 }
