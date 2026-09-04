@@ -13,9 +13,10 @@ import {
 import { DeleteUserButton } from "./delete-user-button";
 
 // Shared column template so the header and every row (regardless of which fields/actions it
-// shows) line up - a plain <table> can't do this cleanly once each row needs to be its own
-// <form>, so each row is a grid with the same explicit columns instead.
-export const USER_ROW_GRID = "grid grid-cols-[minmax(120px,1fr)_minmax(170px,1.4fr)_100px_130px_minmax(150px,auto)] gap-3";
+// shows) line up. Set via inline style rather than a Tailwind arbitrary-value class - a
+// grid-template-columns value with minmax(...)'s nested commas didn't reliably survive
+// Tailwind's arbitrary-value parsing (rendered as no styles at all, not an error).
+export const USER_ROW_GRID_TEMPLATE = "1fr 1.4fr 110px 150px 220px";
 
 type UserRowUser = {
   id: number;
@@ -48,8 +49,13 @@ export function UserRow({
   const canDeactivateOrDelete = !isSelf && !isLastAdmin;
 
   return (
-    <div className={`${USER_ROW_GRID} items-center border-b border-neutral-100 py-2 text-sm`}>
-      <form id={saveFormId} action={formAction} />
+    <div
+      className="grid items-center gap-3 border-b border-neutral-100 px-1 py-3"
+      style={{ gridTemplateColumns: USER_ROW_GRID_TEMPLATE }}
+    >
+      {/* Not a grid item itself (hidden = display:none) - inputs/buttons elsewhere associate
+          with it via the `form` attribute so they can live in their own grid cells. */}
+      <form id={saveFormId} action={formAction} className="hidden" />
       <input form={saveFormId} type="hidden" name="userId" value={user.id} />
 
       <input
@@ -58,7 +64,7 @@ export function UserRow({
         name="name"
         defaultValue={user.name}
         required
-        className="w-full rounded-md border border-neutral-300 px-2 py-1 text-sm focus:border-orange-500 focus:outline-none"
+        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none"
       />
       <input
         form={saveFormId}
@@ -66,19 +72,19 @@ export function UserRow({
         name="email"
         defaultValue={user.email}
         required
-        className="w-full rounded-md border border-neutral-300 px-2 py-1 text-sm focus:border-orange-500 focus:outline-none"
+        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none"
       />
       <select
         form={saveFormId}
         name="role"
         defaultValue={user.role}
-        className="w-full rounded-md border border-neutral-300 px-2 py-1 text-sm focus:border-orange-500 focus:outline-none"
+        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none"
       >
         <option value="MEMBER">Member</option>
         <option value="ADMIN">Admin</option>
       </select>
 
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-0.5 text-sm">
         {status === "pending" && <span className="font-medium text-yellow-700">Invite pending</span>}
         {status === "active" && <span className="font-medium text-green-700">Active</span>}
         {status === "disabled" && <span className="font-medium text-neutral-500">Disabled</span>}
@@ -87,12 +93,12 @@ export function UserRow({
         {state?.success && <span className="text-xs text-green-700">{state.success}</span>}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <button
           form={saveFormId}
           type="submit"
           disabled={pending}
-          className="rounded-md border border-orange-300 bg-white px-2 py-1 text-xs font-semibold text-orange-700 hover:border-orange-400 disabled:opacity-50"
+          className="rounded-md border border-orange-300 bg-white px-2.5 py-1 text-xs font-semibold text-orange-700 hover:border-orange-400 disabled:opacity-50"
         >
           {pending ? "Saving..." : isPending ? "Save & resend" : "Save"}
         </button>

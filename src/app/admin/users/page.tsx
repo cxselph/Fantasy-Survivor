@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { InviteForm } from "./invite-form";
-import { UserRow, USER_ROW_GRID } from "./user-row";
+import { UserRow, USER_ROW_GRID_TEMPLATE } from "./user-row";
 
 export default async function AdminUsersPage() {
   const session = await requireAdmin();
@@ -37,29 +37,34 @@ export default async function AdminUsersPage() {
         {users.length === 0 ? (
           <p className="text-sm text-neutral-500">No users yet.</p>
         ) : (
-          <div>
-            <div className={`${USER_ROW_GRID} px-0 pb-2 text-left text-sm text-neutral-500`}>
-              <span>Name</span>
-              <span>Email</span>
-              <span>Role</span>
-              <span>Status</span>
-              <span>Actions</span>
+          <div className="overflow-x-auto">
+            <div className="min-w-[720px]">
+              <div
+                className="grid gap-3 border-b border-neutral-200 px-1 pb-2 text-left text-sm font-medium text-neutral-500"
+                style={{ gridTemplateColumns: USER_ROW_GRID_TEMPLATE }}
+              >
+                <span>Name</span>
+                <span>Email</span>
+                <span>Role</span>
+                <span>Status</span>
+                <span>Actions</span>
+              </div>
+              {users.map((user) => {
+                const status = !user.passwordHash ? "pending" : user.disabledAt ? "disabled" : "active";
+                const isLocked = !!user.lockedUntil && user.lockedUntil > new Date();
+                const isLastAdmin = user.role === "ADMIN" && status === "active" && activeAdminCount <= 1;
+                return (
+                  <UserRow
+                    key={user.id}
+                    user={{ id: user.id, name: user.name, email: user.email, role: user.role }}
+                    status={status}
+                    isSelf={user.id === session.userId}
+                    isLastAdmin={isLastAdmin}
+                    isLocked={isLocked}
+                  />
+                );
+              })}
             </div>
-            {users.map((user) => {
-              const status = !user.passwordHash ? "pending" : user.disabledAt ? "disabled" : "active";
-              const isLocked = !!user.lockedUntil && user.lockedUntil > new Date();
-              const isLastAdmin = user.role === "ADMIN" && status === "active" && activeAdminCount <= 1;
-              return (
-                <UserRow
-                  key={user.id}
-                  user={{ id: user.id, name: user.name, email: user.email, role: user.role }}
-                  status={status}
-                  isSelf={user.id === session.userId}
-                  isLastAdmin={isLastAdmin}
-                  isLocked={isLocked}
-                />
-              );
-            })}
           </div>
         )}
       </section>
