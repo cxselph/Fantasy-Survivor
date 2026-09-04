@@ -39,6 +39,12 @@ export function SeasonRow({ season }: { season: Season }) {
           >
             {editing ? "Cancel" : "Edit"}
           </button>
+          <a
+            href={`/api/admin/seasons/${season.id}/backup`}
+            className="rounded-md border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600 hover:border-accent-300 hover:text-accent-700"
+          >
+            Backup
+          </a>
           {!season.isActive && (
             <>
               <form action={activateSeason.bind(null, season.id)}>

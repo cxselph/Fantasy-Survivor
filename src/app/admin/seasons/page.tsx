@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/auth";
 import { getAllSeasons } from "@/lib/scoring";
 import { CreateSeasonForm } from "./create-season-form";
+import { RestoreSeasonForm } from "./restore-season-form";
 import { SeasonRow } from "./season-row";
 import { BackToAdmin } from "@/components/back-to-admin";
 
@@ -33,6 +34,18 @@ export default async function AdminSeasonsPage() {
           to add its castaways.
         </p>
         <CreateSeasonForm />
+      </section>
+
+      <section className="rounded-lg border border-neutral-200 bg-white p-4">
+        <h2 className="mb-3 font-semibold">Restore from Backup</h2>
+        <p className="mb-3 text-sm text-neutral-500">
+          Recreates a full season - cast, tribes, drafted teams, and scoring history - from a
+          &quot;Backup&quot; file downloaded above. Always creates a brand-new season (starts
+          inactive); if that season&apos;s number already exists, delete or renumber it first.
+          Drafted teams are re-linked to a matching account by email where possible, and left
+          unclaimed otherwise.
+        </p>
+        <RestoreSeasonForm />
       </section>
     </div>
   );
