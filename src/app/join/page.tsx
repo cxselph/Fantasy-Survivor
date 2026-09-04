@@ -5,6 +5,7 @@ import { unlockTeam } from "@/lib/actions/team";
 import { NoSeasonYet } from "@/components/no-season-yet";
 import { JoinForm } from "./join-form";
 import { TeamSwitcher } from "./team-switcher";
+import { DeleteTeamButton } from "./delete-team-button";
 
 export default async function JoinPage({
   searchParams,
@@ -67,7 +68,10 @@ export default async function JoinPage({
           </div>
         )}
         {owner && existingTeam && (
-          <p className="mt-2 text-sm text-green-700">✓ Showing {existingTeam.ownerName}&apos;s saved team.</p>
+          <div className="mt-2 flex items-center gap-3">
+            <p className="text-sm text-green-700">✓ Showing {existingTeam.ownerName}&apos;s saved team.</p>
+            {isAdmin && <DeleteTeamButton teamId={existingTeam.id} ownerName={existingTeam.ownerName} />}
+          </div>
         )}
       </div>
 
