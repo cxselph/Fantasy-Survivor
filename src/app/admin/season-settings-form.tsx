@@ -70,6 +70,20 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
         raise this if a season runs long.
       </p>
 
+      <label className="flex items-center gap-2 border-t border-neutral-100 pt-3 text-sm font-medium">
+        <input
+          type="checkbox"
+          name="hideTeamsUntilLocked"
+          defaultChecked={season.hideTeamsUntilLocked}
+        />
+        Hide everyone&apos;s picks (including from admins) until the draft is locked
+      </label>
+      <p className="-mt-2 text-xs text-neutral-400">
+        No peeking at other teams&apos; picks on the Dashboard or Admin → Manage Teams while the
+        draft is still open — everyone can always see their own team. An admin can still choose
+        to temporarily reveal a hidden team when they genuinely need to.
+      </p>
+
       <div className="flex flex-col gap-1 border-t border-neutral-100 pt-3">
         <label className="flex flex-col gap-0.5 text-sm font-medium">
           Site title

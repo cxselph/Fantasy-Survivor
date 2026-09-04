@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -8,18 +9,25 @@ import { LinkTeamUserForm } from "../link-team-user-form";
 
 export default async function AdminTeamDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ teamId: string }>;
+  searchParams: Promise<{ reveal?: string }>;
 }) {
-  await requireAdmin();
+  const session = await requireAdmin();
   const { teamId: teamIdParam } = await params;
   const teamId = Number(teamIdParam);
+  const { reveal } = await searchParams;
 
   const team = await prisma.fantasyTeam.findUnique({
     where: { id: teamId },
     include: { picks: true, user: true, season: true },
   });
   if (!team) notFound();
+
+  const isMine = team.userId === session.userId;
+  const shouldHide = team.season.hideTeamsUntilLocked && !team.season.draftLocked;
+  const picksHidden = shouldHide && !isMine && reveal !== "1";
 
   const castaways = await prisma.castaway.findMany({
     where: { seasonId: team.seasonId },
@@ -75,14 +83,23 @@ export default async function AdminTeamDetailPage({
         </div>
       </div>
 
-      <JoinForm
-        key={team.id}
-        castaways={castaways}
-        selectedIds={team.picks.map((p) => p.castawayId)}
-        powerPlayerId={team.picks.find((p) => p.isPowerPlayer)?.castawayId ?? null}
-        alreadyLocked={team.locked}
-        teamId={team.id}
-      />
+      {picksHidden ? (
+        <div className="rounded-2xl bg-white/90 p-5 text-sm text-neutral-600 shadow-lg backdrop-blur-sm">
+          🔒 This team&apos;s picks are hidden until the draft locks.{" "}
+          <Link href={`/admin/teams/${team.id}?reveal=1`} className="font-medium text-accent-700 underline">
+            View and edit anyway (admin override)
+          </Link>
+        </div>
+      ) : (
+        <JoinForm
+          key={team.id}
+          castaways={castaways}
+          selectedIds={team.picks.map((p) => p.castawayId)}
+          powerPlayerId={team.picks.find((p) => p.isPowerPlayer)?.castawayId ?? null}
+          alreadyLocked={team.locked}
+          teamId={team.id}
+        />
+      )}
     </div>
   );
 }

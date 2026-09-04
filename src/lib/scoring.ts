@@ -75,6 +75,7 @@ export type TeamPickSummary = {
 export type TeamStanding = {
   teamId: number;
   ownerName: string;
+  userId: number | null;
   total: number;
   picks: TeamPickSummary[];
 };
@@ -118,7 +119,7 @@ export async function getStandings(seasonId: number): Promise<TeamStanding[]> {
       })
       .sort((a, b) => Number(b.isPowerPlayer) - Number(a.isPowerPlayer) || b.contribution - a.contribution);
 
-    return { teamId: team.id, ownerName: team.ownerName, total, picks };
+    return { teamId: team.id, ownerName: team.ownerName, userId: team.userId, total, picks };
   });
 
   standings.sort((a, b) => b.total - a.total);
