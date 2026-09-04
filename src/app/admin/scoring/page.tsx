@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ScoreEventType } from "@/generated/prisma/enums";
 import { WeeklyForm, type WeeklyEntry } from "./weekly-form";
 import { CustomAdjustmentForm, DeleteEventButton } from "./custom-form";
+import { BackToAdmin } from "@/components/back-to-admin";
 
 export default async function AdminScoringPage({
   searchParams,
@@ -56,12 +57,15 @@ export default async function AdminScoringPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-2xl font-bold">Weekly Scoring</h1>
-        <p className="text-sm text-neutral-500">
-          Season {season.number} · {season.totalWeeks} weeks ·{" "}
-          {season.mergeWeek ? `Merge at week ${season.mergeWeek}` : "Merge week not set yet"}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-bold">Weekly Scoring</h1>
+          <p className="text-sm text-neutral-500">
+            Season {season.number} · {season.totalWeeks} weeks ·{" "}
+            {season.mergeWeek ? `Merge at week ${season.mergeWeek}` : "Merge week not set yet"}
+          </p>
+        </div>
+        <BackToAdmin />
       </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">

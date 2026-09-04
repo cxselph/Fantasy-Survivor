@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getAllSeasons } from "@/lib/scoring";
 import { CreateSeasonForm } from "./create-season-form";
 import { SeasonRow } from "./season-row";
+import { BackToAdmin } from "@/components/back-to-admin";
 
 export default async function AdminSeasonsPage() {
   await requireAdmin();
@@ -9,7 +10,10 @@ export default async function AdminSeasonsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-bold">Manage Seasons</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-bold">Manage Seasons</h1>
+        <BackToAdmin />
+      </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
         <h2 className="mb-3 font-semibold">Seasons</h2>

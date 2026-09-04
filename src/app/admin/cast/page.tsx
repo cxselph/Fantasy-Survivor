@@ -6,6 +6,7 @@ import { TribeChip } from "./tribe-chip";
 import { EliminationToggle } from "./elimination-toggle";
 import { EditCastawayForm } from "./edit-castaway-form";
 import { AddTribeForm, AddCastawayForm } from "./add-forms";
+import { BackToAdmin } from "@/components/back-to-admin";
 
 export default async function AdminCastPage() {
   await requireAdmin();
@@ -21,7 +22,10 @@ export default async function AdminCastPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-bold">Manage Cast &amp; Tribes</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-bold">Manage Cast &amp; Tribes</h1>
+        <BackToAdmin />
+      </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
         <h2 className="mb-3 font-semibold">Tribes</h2>

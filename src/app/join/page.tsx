@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { getActiveSeason } from "@/lib/scoring";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { unlockTeam } from "@/lib/actions/team";
 import { JoinForm } from "./join-form";
+import { TeamSwitcher } from "./team-switcher";
 
 export default async function JoinPage({
   searchParams,
@@ -64,25 +64,7 @@ export default async function JoinPage({
         )}
       </div>
 
-      {teams.length > 0 && (
-        <div className="flex w-fit flex-wrap items-center gap-2 rounded-full bg-white/85 px-3 py-2 text-sm shadow-md backdrop-blur-sm">
-          <span className="text-neutral-500">Edit an existing team:</span>
-          {teams.map((team) => (
-            <Link
-              key={team.id}
-              href={`/join?owner=${encodeURIComponent(team.ownerName)}`}
-              className={`rounded-full border px-3 py-1 ${
-                team.ownerName === owner
-                  ? "border-orange-600 bg-orange-50 text-orange-700"
-                  : "border-neutral-200 text-neutral-600 hover:border-orange-300"
-              }`}
-            >
-              {team.locked && "🔒 "}
-              {team.ownerName}
-            </Link>
-          ))}
-        </div>
-      )}
+      {teams.length > 0 && <TeamSwitcher teams={teams} currentOwner={owner} />}
 
       <JoinForm
         key={existingTeam?.id ?? owner ?? "new"}
