@@ -19,7 +19,7 @@ async function readRole(token: string | undefined): Promise<"admin" | "member" |
   }
 }
 
-const PUBLIC_PATHS = ["/login", "/setup", "/accept-invite"];
+const PUBLIC_PATHS = ["/login", "/setup", "/accept-invite", "/forgot-password", "/reset-password"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
