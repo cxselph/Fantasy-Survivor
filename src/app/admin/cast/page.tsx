@@ -1,8 +1,8 @@
 import { requireAdmin } from "@/lib/auth";
 import { getActiveSeason } from "@/lib/scoring";
 import { prisma } from "@/lib/prisma";
-import { deleteTribe } from "@/lib/actions/cast";
 import { TribeSelect } from "./tribe-select";
+import { TribeChip } from "./tribe-chip";
 import { EliminationToggle } from "./elimination-toggle";
 import { EditCastawayForm } from "./edit-castaway-form";
 import { AddTribeForm, AddCastawayForm } from "./add-forms";
@@ -27,19 +27,7 @@ export default async function AdminCastPage() {
         <h2 className="mb-3 font-semibold">Tribes</h2>
         <div className="mb-3 flex flex-wrap gap-2">
           {tribes.map((tribe) => (
-            <div
-              key={tribe.id}
-              className="flex items-center gap-2 rounded-full px-3 py-1 text-sm text-white"
-              style={{ backgroundColor: tribe.color }}
-            >
-              {tribe.name}
-              <form action={deleteTribe}>
-                <input type="hidden" name="tribeId" value={tribe.id} />
-                <button type="submit" className="opacity-70 hover:opacity-100">
-                  ✕
-                </button>
-              </form>
-            </div>
+            <TribeChip key={tribe.id} tribe={tribe} />
           ))}
           {tribes.length === 0 && <span className="text-sm text-neutral-500">No tribes yet.</span>}
         </div>

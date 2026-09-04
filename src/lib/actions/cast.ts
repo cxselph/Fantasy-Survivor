@@ -65,6 +65,25 @@ export async function createTribe(
   return {};
 }
 
+export async function updateTribe(
+  _prevState: FormState | undefined,
+  formData: FormData,
+): Promise<FormState> {
+  await requireAdmin();
+  const tribeId = Number(formData.get("tribeId"));
+  const name = String(formData.get("name") || "").trim();
+  const color = String(formData.get("color") || "#6b7280");
+  if (!name) return { error: "Tribe name is required." };
+
+  try {
+    await prisma.tribe.update({ where: { id: tribeId }, data: { name, color } });
+  } catch {
+    return { error: `A tribe named "${name}" already exists.` };
+  }
+  refresh();
+  return {};
+}
+
 export async function deleteTribe(formData: FormData) {
   await requireAdmin();
   const tribeId = Number(formData.get("tribeId"));
