@@ -110,6 +110,43 @@ export async function updateInvite(
   return { success: `Invite updated and resent to ${email}.` };
 }
 
+export type SetPasswordState = { error?: string; success?: string };
+
+// Lets an admin directly set (or overwrite) a user's password, bypassing the email/token step
+// entirely - the only recovery path for someone who can't receive email at all. On a still-
+// pending invite this activates the account outright (nothing left to click); on an active
+// account it's the same effect as a self-service reset, just admin-initiated.
+export async function setUserPassword(
+  _prevState: SetPasswordState | undefined,
+  formData: FormData,
+): Promise<SetPasswordState> {
+  await requireAdmin();
+
+  const userId = Number(formData.get("userId"));
+  const password = String(formData.get("password") || "");
+  if (!Number.isInteger(userId)) return { error: "Invalid user." };
+  if (password.length < 8) return { error: "Password must be at least 8 characters." };
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { error: "User not found." };
+
+  const passwordHash = await hashPassword(password);
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      passwordHash,
+      inviteTokenHash: null,
+      inviteTokenExpiresAt: null,
+      sessionVersion: { increment: 1 },
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    },
+  });
+
+  revalidatePath("/admin/users");
+  return { success: "Password set." };
+}
+
 export async function unlockUser(userId: number) {
   await requireAdmin();
   await prisma.user.update({ where: { id: userId }, data: { failedLoginAttempts: 0, lockedUntil: null } });
