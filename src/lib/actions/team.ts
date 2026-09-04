@@ -74,3 +74,11 @@ export async function unlockTeam(teamId: number) {
   await prisma.fantasyTeam.update({ where: { id: teamId }, data: { locked: false } });
   revalidatePath("/join");
 }
+
+export async function deleteTeam(teamId: number) {
+  await requireAdmin();
+  // Cascades to the team's picks; doesn't touch the cast list or other teams.
+  await prisma.fantasyTeam.delete({ where: { id: teamId } });
+  revalidatePath("/");
+  redirect("/join");
+}
