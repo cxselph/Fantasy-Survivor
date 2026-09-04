@@ -94,7 +94,10 @@ export default async function AdminScoringPage({
                 </span>
                 <span className="flex items-center gap-3">
                   <span className="font-mono">{event.points > 0 ? `+${event.points}` : event.points}</span>
-                  <DeleteEventButton id={event.id} />
+                  <DeleteEventButton
+                    id={event.id}
+                    description={`Week ${event.week} · ${event.castaway.name} · ${event.label}`}
+                  />
                 </span>
               </li>
             ))}

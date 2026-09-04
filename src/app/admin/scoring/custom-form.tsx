@@ -44,9 +44,16 @@ export function CustomAdjustmentForm({ castaways }: { castaways: Castaway[] }) {
   );
 }
 
-export function DeleteEventButton({ id }: { id: number }) {
+export function DeleteEventButton({ id, description }: { id: number; description: string }) {
   return (
-    <form action={deleteScoreEvent}>
+    <form
+      action={deleteScoreEvent}
+      onSubmit={(e) => {
+        if (!window.confirm(`Remove this scoring entry?\n\n${description}\n\nThis cannot be undone.`)) {
+          e.preventDefault();
+        }
+      }}
+    >
       <input type="hidden" name="id" value={id} />
       <button type="submit" className="text-xs text-neutral-400 hover:text-red-600">
         remove
