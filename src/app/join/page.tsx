@@ -34,8 +34,8 @@ export default async function JoinPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold">My Team</h1>
+      <div className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
+        <h1 className="font-display text-3xl tracking-wide text-neutral-900">My Team</h1>
         <p className="text-sm text-neutral-500">
           Pick 5 castaways and mark one as your Power Player (scores double, plus a bonus if they win it all).
         </p>
@@ -65,7 +65,7 @@ export default async function JoinPage({
       </div>
 
       {teams.length > 0 && (
-        <div className="flex flex-wrap gap-2 text-sm">
+        <div className="flex w-fit flex-wrap items-center gap-2 rounded-full bg-white/85 px-3 py-2 text-sm shadow-md backdrop-blur-sm">
           <span className="text-neutral-500">Edit an existing team:</span>
           {teams.map((team) => (
             <Link

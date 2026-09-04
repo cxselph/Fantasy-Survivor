@@ -45,7 +45,7 @@ export function JoinForm({
           e.preventDefault();
         }
       }}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-4 rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm"
     >
       <fieldset disabled={locked} className="flex flex-col gap-4 disabled:opacity-60">
         <label className="flex max-w-xs flex-col gap-1 text-sm font-medium">
@@ -55,7 +55,7 @@ export function JoinForm({
             name="ownerName"
             defaultValue={ownerName}
             required
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
           />
         </label>
 
@@ -123,7 +123,7 @@ export function JoinForm({
         <button
           type="submit"
           disabled={pending}
-          className="w-fit rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"
+          className="w-fit rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-orange-600/20 transition hover:bg-orange-700 hover:shadow-lg disabled:opacity-50"
         >
           {pending ? "Saving..." : wantsLock ? "Save & Lock In" : "Save Team"}
         </button>

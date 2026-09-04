@@ -8,6 +8,9 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
   const [state, formAction, pending] = useActionState(updateSeasonSettings, undefined);
   const [preview, setPreview] = useState<string | null>(season.bannerUrl);
   const [removeBanner, setRemoveBanner] = useState(false);
+  const [bgPreview, setBgPreview] = useState<string | null>(season.backgroundUrl);
+  const [removeBackground, setRemoveBackground] = useState(false);
+  const [backgroundDim, setBackgroundDim] = useState(season.backgroundDim);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -15,6 +18,15 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
     setRemoveBanner(false);
     const reader = new FileReader();
     reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  function handleBgFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setRemoveBackground(false);
+    const reader = new FileReader();
+    reader.onload = () => setBgPreview(reader.result as string);
     reader.readAsDataURL(file);
   }
 
@@ -115,6 +127,81 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
           <p className="text-xs text-neutral-400">
             Leaving both blank keeps whatever banner is already set.
           </p>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-3 border-t border-neutral-100 pt-3">
+        {bgPreview && !removeBackground && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={bgPreview} alt="" className="h-16 w-32 rounded object-cover" />
+        )}
+        <div className="flex flex-1 flex-col gap-2">
+          <span className="text-sm font-medium">Site background</span>
+          <p className="text-xs text-neutral-400">
+            Shows behind every page (e.g. a Fiji beach shot, or a favorite moment from a past
+            season). Without one, a tropical gradient is used.
+          </p>
+          <label className="flex flex-col gap-0.5 text-xs">
+            Image URL
+            <input
+              name="backgroundUrl"
+              defaultValue={season.backgroundUrl?.startsWith("data:") ? "" : (season.backgroundUrl ?? "")}
+              placeholder="https://..."
+              onChange={(e) => {
+                if (e.target.value.trim()) {
+                  setRemoveBackground(false);
+                  setBgPreview(e.target.value.trim());
+                }
+              }}
+              className="max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
+            />
+          </label>
+          <label className="flex flex-col gap-0.5 text-xs">
+            Or upload an image (JPEG/PNG, max 4MB)
+            <input
+              type="file"
+              name="backgroundFile"
+              accept="image/*"
+              onChange={handleBgFileChange}
+              className="text-xs"
+            />
+          </label>
+          {season.backgroundUrl && (
+            <label className="flex items-center gap-2 text-xs text-neutral-600">
+              <input
+                type="checkbox"
+                name="removeBackground"
+                checked={removeBackground}
+                onChange={(e) => {
+                  setRemoveBackground(e.target.checked);
+                  if (e.target.checked) setBgPreview(null);
+                  else setBgPreview(season.backgroundUrl);
+                }}
+              />
+              Remove the current background (use the default gradient)
+            </label>
+          )}
+
+          <label className="flex flex-col gap-1 text-xs">
+            Background darkness ({backgroundDim}%) — dims the photo so text stays readable
+            <input
+              type="range"
+              name="backgroundDim"
+              min={0}
+              max={100}
+              value={backgroundDim}
+              onChange={(e) => setBackgroundDim(Number(e.target.value))}
+              className="max-w-md accent-orange-600"
+            />
+          </label>
+          {bgPreview && !removeBackground && (
+            <div
+              className="h-20 w-full max-w-md rounded-lg bg-cover bg-center"
+              style={{
+                backgroundImage: `linear-gradient(rgba(8,20,30,${backgroundDim / 100}), rgba(8,20,30,${backgroundDim / 100})), url(${bgPreview})`,
+              }}
+            />
+          )}
         </div>
       </div>
 

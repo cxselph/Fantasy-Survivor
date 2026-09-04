@@ -13,7 +13,7 @@ export function SeasonSwitcher({
   if (seasons.length <= 1) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm">
+    <div className="flex flex-wrap items-center gap-2 rounded-full bg-white/85 px-3 py-2 text-sm shadow-md backdrop-blur-sm w-fit">
       <span className="text-neutral-500">Season:</span>
       {seasons.map((season) => (
         <Link

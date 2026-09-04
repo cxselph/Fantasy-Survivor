@@ -25,7 +25,7 @@ export function CastawayCard({
   }
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">
+    <div className="flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-md transition hover:shadow-xl">
       <div className="relative aspect-square w-full bg-neutral-200">
         {castaway.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

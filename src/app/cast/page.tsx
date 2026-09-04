@@ -40,8 +40,8 @@ export default async function CastPage({
     <div className="flex flex-col gap-8">
       <SeasonSwitcher seasons={allSeasons} currentNumber={season.number} basePath="/cast" />
 
-      <div>
-        <h1 className="text-2xl font-bold">The Cast</h1>
+      <div className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
+        <h1 className="font-display text-3xl tracking-wide text-neutral-900">The Cast</h1>
         <p className="text-sm text-neutral-500">
           Season {season.number}: {season.name}
         </p>
@@ -50,7 +50,7 @@ export default async function CastPage({
       {groups.map(({ tribe, castaways: members }) => (
         <div key={tribe?.id ?? "unassigned"}>
           <h2
-            className="mb-3 block w-full rounded-md px-4 py-4 text-center text-2xl font-extrabold uppercase tracking-wide text-white"
+            className="font-display mb-3 block w-full rounded-xl px-4 py-4 text-center text-2xl tracking-wide text-white shadow-lg"
             style={{ backgroundColor: tribe?.color ?? "#737373" }}
           >
             {tribe?.name ?? "Tribe TBD"}

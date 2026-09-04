@@ -12,16 +12,18 @@ datasource db {
 
 // A single Survivor season (e.g. Season 51). Everything else hangs off one.
 model Season {
-  id          Int      @id @default(autoincrement())
-  number      Int      @unique // 51
-  name        String // "The Open Era"
-  isActive    Boolean  @default(true)
-  draftLocked Boolean  @default(false) // once true, participants can no longer change their picks
-  mergeWeek   Int? // week number merge happened; null until admin sets it
-  totalWeeks  Int      @default(13) // caps the Weekly Scoring week field; admin can raise it if a season runs long
-  bannerUrl   String? // shown on the login page
-  siteTitle   String? // shown on the login page and the nav bar once logged in; falls back to a default if unset
-  createdAt   DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  number        Int      @unique // 51
+  name          String // "The Open Era"
+  isActive      Boolean  @default(true)
+  draftLocked   Boolean  @default(false) // once true, participants can no longer change their picks
+  mergeWeek     Int? // week number merge happened; null until admin sets it
+  totalWeeks    Int      @default(13) // caps the Weekly Scoring week field; admin can raise it if a season runs long
+  bannerUrl     String? // shown on the login page
+  backgroundUrl String? // full-page background image, site-wide; falls back to a default gradient if unset
+  backgroundDim Int      @default(45) // 0-100, darkness of the overlay tint on top of backgroundUrl (readability)
+  siteTitle     String? // shown on the login page and the nav bar once logged in; falls back to a default if unset
+  createdAt     DateTime @default(now())
 
   // Scoring rules, kept per-season so future seasons can change them without a migration.
   challengeWinPreMerge   Int @default(2)

@@ -26,11 +26,11 @@ export default async function RulesPage({
     <div className="flex flex-col gap-6">
       <SeasonSwitcher seasons={allSeasons} currentNumber={season.number} basePath="/rules" />
 
-      <h1 className="text-2xl font-bold">
+      <h1 className="font-display text-3xl tracking-wide text-white drop-shadow-lg">
         League Rules {allSeasons.length > 1 && `— Season ${season.number}`}
       </h1>
 
-      <section className="rounded-lg border border-neutral-200 bg-white p-4">
+      <section className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
         <h2 className="mb-2 font-semibold">Scoring</h2>
         <table className="w-full text-sm">
           <tbody>
@@ -44,7 +44,7 @@ export default async function RulesPage({
         </table>
       </section>
 
-      <section className="rounded-lg border border-neutral-200 bg-white p-4">
+      <section className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
         <h2 className="mb-2 font-semibold">Power Player</h2>
         <p className="text-sm text-neutral-600">
           Each team designates one of its 5 picks as their <strong>Power Player</strong>. That
@@ -54,7 +54,7 @@ export default async function RulesPage({
         </p>
       </section>
 
-      <section className="rounded-lg border border-neutral-200 bg-white p-4">
+      <section className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
         <h2 className="mb-2 font-semibold">Draft</h2>
         <p className="text-sm text-neutral-600">
           Everyone drafts independently — there&apos;s no exclusivity, so multiple teams can pick the
@@ -62,7 +62,7 @@ export default async function RulesPage({
         </p>
       </section>
 
-      <section className="rounded-lg border border-neutral-200 bg-white p-4">
+      <section className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
         <h2 className="mb-2 font-semibold">Winning</h2>
         <p className="text-sm text-neutral-600">
           The fantasy team with the most points at the end of the season wins the league.

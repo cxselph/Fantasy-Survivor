@@ -19,16 +19,16 @@ export default async function LoginPage({
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center">
-      {bannerUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={bannerUrl} alt="Season banner" className="mb-4 w-full rounded-lg object-cover" />
-      )}
-      <h1 className="mb-1 text-center text-2xl font-bold text-orange-600">{siteTitle}</h1>
-      <p className="mb-6 text-center text-sm text-neutral-500">
-        Enter the league password to get in.
-      </p>
-      <LoginForm next={next ?? "/"} />
+    <div className="flex min-h-[85vh] flex-col items-center justify-center px-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white/95 p-8 shadow-2xl backdrop-blur">
+        {bannerUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={bannerUrl} alt="Season banner" className="mb-5 w-full rounded-xl object-cover shadow-md" />
+        )}
+        <h1 className="font-display mb-1 text-center text-3xl tracking-wide text-orange-600">{siteTitle}</h1>
+        <p className="mb-6 text-center text-sm text-neutral-500">Enter the league password to get in.</p>
+        <LoginForm next={next ?? "/"} />
+      </div>
     </div>
   );
 }

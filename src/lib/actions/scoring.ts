@@ -164,10 +164,16 @@ export async function updateSeasonSettings(
   const totalWeeksRaw = String(formData.get("totalWeeks") || "").trim();
   const totalWeeks = totalWeeksRaw ? Number(totalWeeksRaw) : 13;
   const removeBanner = formData.get("removeBanner") === "on";
+  const removeBackground = formData.get("removeBackground") === "on";
   const siteTitle = String(formData.get("siteTitle") || "").trim();
+  const backgroundDimRaw = String(formData.get("backgroundDim") || "").trim();
+  const backgroundDim = backgroundDimRaw ? Number(backgroundDimRaw) : 45;
 
   if (!Number.isInteger(totalWeeks) || totalWeeks < 1) {
     return { error: "Season length must be a whole number of weeks." };
+  }
+  if (!Number.isInteger(backgroundDim) || backgroundDim < 0 || backgroundDim > 100) {
+    return { error: "Background darkness must be between 0 and 100." };
   }
 
   const { url: bannerResolved, error: bannerError } = await resolveUploadedImage(
@@ -177,7 +183,20 @@ export async function updateSeasonSettings(
   );
   if (bannerError) return { error: bannerError };
 
-  const data: Prisma.SeasonUpdateInput = { draftLocked, mergeWeek, totalWeeks, siteTitle: siteTitle || null };
+  const { url: backgroundResolved, error: backgroundError } = await resolveUploadedImage(
+    formData,
+    "backgroundFile",
+    "backgroundUrl",
+  );
+  if (backgroundError) return { error: backgroundError };
+
+  const data: Prisma.SeasonUpdateInput = {
+    draftLocked,
+    mergeWeek,
+    totalWeeks,
+    siteTitle: siteTitle || null,
+    backgroundDim,
+  };
   if (removeBanner) {
     data.bannerUrl = null;
   } else if (bannerResolved) {
@@ -185,10 +204,17 @@ export async function updateSeasonSettings(
     // as-is, since this form is submitted every time any season setting changes.
     data.bannerUrl = bannerResolved;
   }
+  if (removeBackground) {
+    data.backgroundUrl = null;
+  } else if (backgroundResolved) {
+    data.backgroundUrl = backgroundResolved;
+  }
 
   await prisma.season.update({ where: { id: seasonId }, data });
 
   revalidatePath("/");
+  revalidatePath("/cast");
+  revalidatePath("/rules");
   revalidatePath("/join");
   revalidatePath("/login");
   revalidatePath("/admin");

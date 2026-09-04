@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
+import { Geist, Geist_Mono, Anton } from "next/font/google";
 import "./globals.css";
 import { getSession } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
 import { getActiveSeason, getSiteTitle } from "@/lib/scoring";
+import { NavLinks } from "./nav-links";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,6 +13,12 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const anton = Anton({
+  variable: "--font-anton",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -32,41 +38,43 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const session = await getSession();
 
   let siteTitle = "🔥 Survivor League";
-  if (session) {
-    try {
-      siteTitle = getSiteTitle(await getActiveSeason());
-    } catch {
-      // No season configured yet - fall back to the generic title.
-    }
+  let backgroundUrl: string | null = null;
+  let backgroundDim = 45;
+  try {
+    const season = await getActiveSeason();
+    siteTitle = getSiteTitle(season);
+    backgroundUrl = season.backgroundUrl;
+    backgroundDim = season.backgroundDim;
+  } catch {
+    // No season configured yet - fall back to defaults.
   }
+
+  const navLinks = session?.role === "admin" ? [...NAV_LINKS, { href: "/admin", label: "Admin" }] : NAV_LINKS;
 
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900">
+      <body
+        className={`min-h-full flex flex-col text-neutral-900 ${backgroundUrl ? "" : "bg-tropical"}`}
+        style={
+          backgroundUrl
+            ? {
+                backgroundImage: `linear-gradient(rgba(8,20,30,${backgroundDim / 100}), rgba(8,20,30,${backgroundDim / 100})), url(${backgroundUrl})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundAttachment: "fixed",
+              }
+            : undefined
+        }
+      >
         {session && (
-          <header className="border-b border-neutral-200 bg-white">
+          <header className="sticky top-0 z-10 border-b border-white/20 bg-white/85 shadow-sm backdrop-blur-md">
             <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
               <div className="flex flex-wrap items-center gap-4">
-                <span className="font-bold tracking-tight text-orange-600">{siteTitle}</span>
-                <nav className="flex flex-wrap gap-3 text-sm font-medium">
-                  {NAV_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="text-neutral-600 hover:text-orange-600"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                  {session.role === "admin" && (
-                    <Link href="/admin" className="text-neutral-600 hover:text-orange-600">
-                      Admin
-                    </Link>
-                  )}
-                </nav>
+                <span className="font-display text-xl tracking-wide text-orange-600">{siteTitle}</span>
+                <NavLinks links={navLinks} />
               </div>
               <form action={logout}>
                 <button
