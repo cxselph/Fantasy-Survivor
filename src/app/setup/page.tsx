@@ -14,7 +14,7 @@ export default async function SetupPage() {
           🔥 Set Up Admin
         </h1>
         <p className="mb-6 text-center text-sm text-neutral-500">
-          One-time setup: prove you have the commissioner password, then create the first real
+          One-time setup: prove you have the setup password, then create the first real
           admin account.
         </p>
         <SetupForm />

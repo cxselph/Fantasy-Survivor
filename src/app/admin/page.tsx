@@ -16,7 +16,7 @@ export default async function AdminPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Commissioner Admin</h1>
+      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
 
       <div className="flex gap-3">
         <Link

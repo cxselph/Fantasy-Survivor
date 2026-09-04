@@ -39,7 +39,7 @@ export function JoinForm({
     <form
       action={formAction}
       onSubmit={(e) => {
-        if (wantsLock && !window.confirm("Lock in your picks? Only the commissioner can unlock this afterward.")) {
+        if (wantsLock && !window.confirm("Lock in your picks? Only an admin can unlock this afterward.")) {
           e.preventDefault();
         }
       }}
@@ -103,8 +103,8 @@ export function JoinForm({
               checked={wantsLock}
               onChange={(e) => setWantsLock(e.target.checked)}
             />
-            🔒 Lock in my picks — I&apos;m done, don&apos;t let anyone (including me) change this without the
-            commissioner unlocking it.
+            🔒 Lock in my picks — I&apos;m done, don&apos;t let anyone (including me) change this without an
+            admin unlocking it.
           </label>
         )}
 

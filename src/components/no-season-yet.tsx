@@ -14,7 +14,7 @@ export function NoSeasonYet({ isAdmin }: { isAdmin: boolean }) {
             and activate it to get started.
           </>
         ) : (
-          "The commissioner hasn't set up a season yet — check back soon."
+          "No admin has set up a season yet — check back soon."
         )}
       </p>
     </div>
