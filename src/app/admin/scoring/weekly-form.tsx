@@ -88,7 +88,9 @@ export function WeeklyForm({
           <tbody>
             {castaways.map((castaway) => {
               const entry = entries.get(castaway.id);
-              const isOut = castaway.isEliminated;
+              // Grey out only once we're past the week they were actually voted out in -
+              // earlier weeks (including the week they went out) should read/edit normally.
+              const isOut = castaway.isEliminated && (castaway.eliminatedWeek == null || week > castaway.eliminatedWeek);
               return (
                 <tr
                   key={castaway.id}
@@ -96,7 +98,7 @@ export function WeeklyForm({
                 >
                   <td className="py-1.5 pr-2 font-medium">
                     {castaway.name}
-                    {isOut && (
+                    {castaway.isEliminated && (
                       <span className="ml-2 text-xs font-normal text-neutral-400">
                         (voted out{castaway.eliminatedWeek != null ? ` — Wk ${castaway.eliminatedWeek}` : ""})
                       </span>

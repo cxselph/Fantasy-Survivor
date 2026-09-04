@@ -43,9 +43,12 @@ export async function saveWeeklyResults(
 
   await prisma.$transaction(async (tx) => {
     for (const castaway of castaways) {
-      // Once voted out, a castaway is done for the season - their scoring row is
-      // disabled on the form (no fields submitted for them), and past weeks stay as-is.
-      if (castaway.isEliminated) continue;
+      // Once we're past the week they were actually voted out in, their row is
+      // disabled on the form (no fields submitted) and stays as-is. Weeks at or
+      // before their boot remain editable, since they were genuinely still in.
+      const isOutForThisWeek =
+        castaway.isEliminated && (castaway.eliminatedWeek == null || week > castaway.eliminatedWeek);
+      if (isOutForThisWeek) continue;
 
       await tx.scoreEvent.deleteMany({
         where: {
