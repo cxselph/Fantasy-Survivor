@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { getSmtpSettingsForDisplay } from "@/lib/actions/smtp-settings";
+import { BackToAdmin } from "@/components/back-to-admin";
 import { EmailSettingsForm } from "./email-settings-form";
 import { TestEmailForm } from "./test-email-form";
 
@@ -9,7 +10,10 @@ export default async function AdminEmailSettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Email Settings</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-bold">Email Settings</h1>
+        <BackToAdmin />
+      </div>
       <p className="text-sm text-neutral-500">
         SMTP configuration used to send invite and password-reset emails. The password is
         encrypted at rest and never shown here once saved.
