@@ -70,7 +70,7 @@ export default async function JoinPage() {
         )}
         {!seasonLocked && teamLocked && !isAdmin && (
           <p className="mt-2 rounded-md bg-yellow-50 px-3 py-2 text-sm text-yellow-800">
-            🔒 This team is locked in. Ask the commissioner to unlock it if you need to make a change.
+            🔒 This team is locked in. Ask an admin to unlock it if you need to make a change.
           </p>
         )}
         {!seasonLocked && teamLocked && isAdmin && (
@@ -105,7 +105,7 @@ export default async function JoinPage() {
 
       {showReveal && isAdmin && (
         <p className="rounded-2xl bg-white/90 px-4 py-2 text-xs text-neutral-500 shadow-lg backdrop-blur-sm">
-          You can still edit below since you&apos;re the commissioner.
+          You can still edit below since you&apos;re an admin.
         </p>
       )}
 

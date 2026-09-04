@@ -47,7 +47,7 @@ export async function saveTeam(
       where: { seasonId_userId: { seasonId: season.id, userId: session.userId } },
     });
     if (existing?.locked && !isAdmin) {
-      return { error: "This team is locked in. Ask the commissioner to unlock it if you need to make a change." };
+      return { error: "This team is locked in. Ask an admin to unlock it if you need to make a change." };
     }
     team =
       existing ??

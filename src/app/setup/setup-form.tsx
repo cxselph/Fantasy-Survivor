@@ -9,7 +9,7 @@ export function SetupForm() {
   return (
     <form action={formAction} className="flex flex-col gap-3">
       <label className="flex flex-col gap-1 text-sm font-medium">
-        Commissioner (setup) password
+        Setup password
         <input
           type="password"
           name="adminPassword"
