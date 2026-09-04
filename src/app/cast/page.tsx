@@ -82,16 +82,33 @@ export default async function CastPage({
           >
             {collapsed ? `Final ${members.length}` : (tribe?.name ?? "Tribe TBD")}
           </h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {members.map((castaway) => (
-              <CastawayCard
-                key={castaway.id}
-                castaway={castaway}
-                totalPoints={castaway.scoreEvents.reduce((sum, e) => sum + e.points, 0)}
-                isAdmin={isAdmin}
-              />
-            ))}
-          </div>
+          {collapsed ? (
+            // A fixed-width flex row (rather than a grid whose columns always stretch to fill
+            // the container) so a short final stretch of castaways centers instead of sitting
+            // flush-left with empty grid cells to the right.
+            <div className="flex flex-wrap justify-center gap-4">
+              {members.map((castaway) => (
+                <div key={castaway.id} className="w-36 sm:w-40 md:w-44">
+                  <CastawayCard
+                    castaway={castaway}
+                    totalPoints={castaway.scoreEvents.reduce((sum, e) => sum + e.points, 0)}
+                    isAdmin={isAdmin}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              {members.map((castaway) => (
+                <CastawayCard
+                  key={castaway.id}
+                  castaway={castaway}
+                  totalPoints={castaway.scoreEvents.reduce((sum, e) => sum + e.points, 0)}
+                  isAdmin={isAdmin}
+                />
+              ))}
+            </div>
+          )}
         </div>
       ))}
 
