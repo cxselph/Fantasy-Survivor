@@ -104,7 +104,7 @@ export default async function JoinPage() {
       )}
 
       {showReveal && isAdmin && (
-        <p className="text-xs text-neutral-500">
+        <p className="rounded-2xl bg-white/90 px-4 py-2 text-xs text-neutral-500 shadow-lg backdrop-blur-sm">
           You can still edit below since you&apos;re the commissioner.
         </p>
       )}
