@@ -43,7 +43,18 @@ export function TribeChip({ tribe }: { tribe: Tribe }) {
       <button type="button" onClick={() => setEditing(true)} className="opacity-70 hover:opacity-100">
         ✎
       </button>
-      <form action={deleteTribe}>
+      <form
+        action={deleteTribe}
+        onSubmit={(e) => {
+          if (
+            !window.confirm(
+              `Delete the "${tribe.name}" tribe?\n\nCastaways on it become unassigned, not deleted.`,
+            )
+          ) {
+            e.preventDefault();
+          }
+        }}
+      >
         <input type="hidden" name="tribeId" value={tribe.id} />
         <button type="submit" className="opacity-70 hover:opacity-100">
           ✕
