@@ -8,10 +8,12 @@ export function CastawayCard({
   castaway,
   totalPoints,
   isAdmin,
+  tribeName,
 }: {
   castaway: Castaway;
   totalPoints: number;
   isAdmin: boolean;
+  tribeName?: string;
 }) {
   const [week, setWeek] = useState(castaway.eliminatedWeek?.toString() ?? "");
   const [isEliminated, setIsEliminated] = useState(castaway.isEliminated);
@@ -56,6 +58,7 @@ export function CastawayCard({
           <span className="font-mono text-xs text-neutral-500">{totalPoints}</span>
         </div>
         {castaway.bio && <span className="text-xs text-neutral-500">{castaway.bio}</span>}
+        {tribeName && <span className="text-xs text-neutral-400">{tribeName}</span>}
         {isEliminated && castaway.eliminatedWeek != null && (
           <span className="text-xs font-medium text-red-600">Voted out — Week {castaway.eliminatedWeek}</span>
         )}

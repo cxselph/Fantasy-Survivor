@@ -25,13 +25,22 @@ export default async function CastPage({
     }),
   ]);
 
+  const active = castaways.filter((c) => !c.isEliminated);
+  const votedOut = castaways
+    .filter((c) => c.isEliminated)
+    .sort((a, b) => (a.eliminatedWeek ?? 0) - (b.eliminatedWeek ?? 0) || a.name.localeCompare(b.name));
+
+  // Only still-active tribes get a section - once everyone on a tribe is voted
+  // out (or the season merges), it drops out instead of leaving an empty header.
   const groups = [
     ...tribes.map((tribe) => ({
       tribe,
-      castaways: castaways.filter((c) => c.tribeId === tribe.id),
+      castaways: active.filter((c) => c.tribeId === tribe.id),
     })),
-    { tribe: null, castaways: castaways.filter((c) => c.tribeId === null) },
+    { tribe: null, castaways: active.filter((c) => c.tribeId === null) },
   ].filter((group) => group.castaways.length > 0);
+
+  const tribeNameById = new Map(tribes.map((t) => [t.id, t.name]));
 
   // Past seasons are frozen - only the active season can be edited.
   const isAdmin = session?.role === "admin" && season.isActive;
@@ -67,6 +76,25 @@ export default async function CastPage({
           </div>
         </div>
       ))}
+
+      {votedOut.length > 0 && (
+        <div>
+          <h2 className="font-display mb-3 block w-full rounded-xl bg-neutral-700 px-4 py-4 text-center text-2xl tracking-wide text-white shadow-lg">
+            Voted Out
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {votedOut.map((castaway) => (
+              <CastawayCard
+                key={castaway.id}
+                castaway={castaway}
+                totalPoints={castaway.scoreEvents.reduce((sum, e) => sum + e.points, 0)}
+                isAdmin={isAdmin}
+                tribeName={castaway.tribeId ? tribeNameById.get(castaway.tribeId) : undefined}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
