@@ -54,6 +54,10 @@ export async function login(
         ...(justLocked ? { lockedUntil: new Date(Date.now() + LOCKOUT_MS) } : {}),
       },
     });
+    if (justLocked) {
+      const minutesLeft = Math.ceil(LOCKOUT_MS / 60000);
+      return { error: `Too many failed attempts. Try again in ${minutesLeft} minutes.` };
+    }
     return { error: GENERIC_ERROR };
   }
 
