@@ -4,6 +4,16 @@
   color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Default accent shades (Tailwind's original orange-50..700) - overridden at runtime via an
+     inline style on <html> once a season sets a custom accentColor, see src/lib/theme.ts. */
+  --accent-50: #fff7ed;
+  --accent-100: #ffedd5;
+  --accent-300: #fdba74;
+  --accent-400: #fb923c;
+  --accent-500: #f97316;
+  --accent-600: #ea580c;
+  --accent-700: #c2410c;
 }
 
 @theme inline {
@@ -12,6 +22,14 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-anton);
+
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+  --color-accent-300: var(--accent-300);
+  --color-accent-400: var(--accent-400);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
 }
 
 body {
@@ -22,7 +40,7 @@ body {
 
 /* Default site background: an ocean-to-torch gradient, used until a real photo is set. */
 .bg-tropical {
-  background-image: linear-gradient(160deg, #0c4a6e 0%, #0e7490 30%, #0d9488 55%, #ea580c 100%);
+  background-image: linear-gradient(160deg, #0c4a6e 0%, #0e7490 30%, #0d9488 55%, var(--accent-600) 100%);
   background-attachment: fixed;
   background-size: cover;
 }

@@ -18,7 +18,7 @@ export function InviteForm({
           type="email"
           name="email"
           required
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
         />
       </label>
 
@@ -28,7 +28,7 @@ export function InviteForm({
           type="text"
           name="name"
           required
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
         />
       </label>
 
@@ -43,7 +43,7 @@ export function InviteForm({
           <select
             name="teamId"
             defaultValue=""
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
           >
             <option value="">Don&apos;t link a team</option>
             {unclaimedTeams.map((team) => (
@@ -61,7 +61,7 @@ export function InviteForm({
       <button
         type="submit"
         disabled={pending}
-        className="w-fit rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-orange-600/20 transition hover:bg-orange-700 hover:shadow-lg disabled:opacity-50"
+        className="w-fit rounded-xl bg-accent-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-accent-600/20 transition hover:bg-accent-700 hover:shadow-lg disabled:opacity-50"
       >
         {pending ? "Sending..." : "Send invite"}
       </button>

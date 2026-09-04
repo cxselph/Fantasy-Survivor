@@ -79,7 +79,7 @@ export function JoinForm({
                   {castaway.isEliminated && <span className="text-xs">(voted out)</span>}
                 </label>
                 {isSelected && (
-                  <label className="flex items-center gap-1 text-xs font-medium text-orange-700">
+                  <label className="flex items-center gap-1 text-xs font-medium text-accent-700">
                     <input
                       type="radio"
                       name="powerPlayerId"
@@ -113,7 +113,7 @@ export function JoinForm({
         <button
           type="submit"
           disabled={pending}
-          className="w-fit rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-orange-600/20 transition hover:bg-orange-700 hover:shadow-lg disabled:opacity-50"
+          className="w-fit rounded-xl bg-accent-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-accent-600/20 transition hover:bg-accent-700 hover:shadow-lg disabled:opacity-50"
         >
           {pending ? "Saving..." : wantsLock ? "Save & Lock In" : "Save Team"}
         </button>

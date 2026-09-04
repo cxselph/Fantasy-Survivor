@@ -23,6 +23,7 @@ model Season {
   backgroundUrl String? // full-page background image, site-wide; falls back to a default gradient if unset
   backgroundDim Int      @default(45) // 0-100, darkness of the overlay tint on top of backgroundUrl (readability)
   siteTitle     String? // shown on the login page and the nav bar once logged in; falls back to a default if unset
+  accentColor   String? // hex, e.g. "#ea580c" - site-wide button/title/border theme color; falls back to the default orange if unset
   createdAt     DateTime @default(now())
 
   // Scoring rules, kept per-season so future seasons can change them without a migration.

@@ -4,6 +4,7 @@ import "./globals.css";
 import { getSession } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
 import { getActiveSeason, getSiteTitle } from "@/lib/scoring";
+import { generateAccentShades } from "@/lib/theme";
 import { NavLinks } from "./nav-links";
 
 const geistSans = Geist({
@@ -40,21 +41,29 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   let siteTitle = "🔥 Survivor League";
   let backgroundUrl: string | null = null;
   let backgroundDim = 45;
+  let accentColor: string | null = null;
   try {
     const season = await getActiveSeason();
     siteTitle = getSiteTitle(season);
     backgroundUrl = season.backgroundUrl;
     backgroundDim = season.backgroundDim;
+    accentColor = season.accentColor;
   } catch {
     // No season configured yet - fall back to defaults.
   }
 
   const navLinks = session?.role === "admin" ? [...NAV_LINKS, { href: "/admin", label: "Admin" }] : NAV_LINKS;
 
+  const accentShades = generateAccentShades(accentColor);
+  const accentStyle = Object.fromEntries(
+    Object.entries(accentShades).map(([shade, hex]) => [`--accent-${shade}`, hex]),
+  ) as React.CSSProperties;
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} h-full antialiased`}
+      style={accentStyle}
     >
       <body
         className={`min-h-full flex flex-col text-neutral-900 ${backgroundUrl ? "" : "bg-tropical"}`}
@@ -73,7 +82,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <header className="sticky top-0 z-10 border-b border-white/20 bg-white/85 shadow-sm backdrop-blur-md">
             <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
               <div className="flex flex-wrap items-center gap-4">
-                <span className="font-display text-xl tracking-wide text-orange-600">{siteTitle}</span>
+                <span className="font-display text-xl tracking-wide text-accent-600">{siteTitle}</span>
                 <NavLinks links={navLinks} />
               </div>
               <div className="flex items-center gap-3">

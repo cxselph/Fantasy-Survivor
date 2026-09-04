@@ -146,7 +146,7 @@ export function WeeklyForm({
       <button
         type="submit"
         disabled={pending}
-        className="w-fit rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"
+        className="w-fit rounded-md bg-accent-600 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-700 disabled:opacity-50"
       >
         {pending ? "Saving..." : "Save Week"}
       </button>

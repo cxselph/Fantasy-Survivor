@@ -34,7 +34,7 @@ export function LinkTeamUserForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md border border-orange-300 bg-white px-3 py-1 text-xs font-semibold text-orange-700 hover:border-orange-400 disabled:opacity-50"
+        className="rounded-md border border-accent-300 bg-white px-3 py-1 text-xs font-semibold text-accent-700 hover:border-accent-400 disabled:opacity-50"
       >
         {pending ? "Linking..." : "Link"}
       </button>

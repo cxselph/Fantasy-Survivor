@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import type { Season } from "@/generated/prisma/client";
 import { updateSeasonSettings } from "@/lib/actions/scoring";
+import { DEFAULT_ACCENT } from "@/lib/theme";
 
 export function SeasonSettingsForm({ season }: { season: Season }) {
   const [state, formAction, pending] = useActionState(updateSeasonSettings, undefined);
@@ -11,6 +12,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
   const [bgPreview, setBgPreview] = useState<string | null>(season.backgroundUrl);
   const [removeBackground, setRemoveBackground] = useState(false);
   const [backgroundDim, setBackgroundDim] = useState(season.backgroundDim);
+  const [accentColor, setAccentColor] = useState(season.accentColor ?? DEFAULT_ACCENT);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -81,6 +83,32 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
         <p className="text-xs text-neutral-400">
           Shown on the login page and the nav bar once logged in. Leave blank to use the default shown above.
         </p>
+      </div>
+
+      <div className="flex flex-col gap-2 border-t border-neutral-100 pt-3">
+        <span className="text-sm font-medium">Theme color</span>
+        <p className="text-xs text-neutral-400">
+          Used for buttons, titles, and borders site-wide.
+        </p>
+        <div className="flex items-center gap-3">
+          <input
+            type="color"
+            name="accentColor"
+            value={accentColor}
+            onChange={(e) => setAccentColor(e.target.value)}
+            className="h-9 w-16 cursor-pointer rounded border border-neutral-300"
+          />
+          <span className="font-mono text-xs text-neutral-500">{accentColor}</span>
+          {accentColor.toLowerCase() !== DEFAULT_ACCENT && (
+            <button
+              type="button"
+              onClick={() => setAccentColor(DEFAULT_ACCENT)}
+              className="text-xs font-medium text-accent-700 underline hover:no-underline"
+            >
+              Reset to default
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex items-start gap-3 border-t border-neutral-100 pt-3">
@@ -191,7 +219,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
               max={100}
               value={backgroundDim}
               onChange={(e) => setBackgroundDim(Number(e.target.value))}
-              className="max-w-md accent-orange-600"
+              className="max-w-md accent-accent-600"
             />
           </label>
           {bgPreview && !removeBackground && (
@@ -211,7 +239,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
         <button
           type="submit"
           disabled={pending}
-          className="w-fit rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"
+          className="w-fit rounded-md bg-accent-600 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-700 disabled:opacity-50"
         >
           {pending ? "Saving..." : "Save Settings"}
         </button>

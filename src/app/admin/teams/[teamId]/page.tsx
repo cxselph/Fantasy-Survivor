@@ -47,7 +47,7 @@ export default async function AdminTeamDetailPage({
           </span>
           {team.user && (
             <form action={unlinkTeamUser.bind(null, team.id)}>
-              <button type="submit" className="text-orange-700 underline hover:no-underline">
+              <button type="submit" className="text-accent-700 underline hover:no-underline">
                 Unlink
               </button>
             </form>

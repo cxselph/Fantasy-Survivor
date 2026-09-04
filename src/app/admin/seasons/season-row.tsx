@@ -35,7 +35,7 @@ export function SeasonRow({ season }: { season: Season }) {
           <button
             type="button"
             onClick={() => setEditing((v) => !v)}
-            className="rounded-md border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600 hover:border-orange-300 hover:text-orange-700"
+            className="rounded-md border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600 hover:border-accent-300 hover:text-accent-700"
           >
             {editing ? "Cancel" : "Edit"}
           </button>
@@ -44,7 +44,7 @@ export function SeasonRow({ season }: { season: Season }) {
               <form action={activateSeason.bind(null, season.id)}>
                 <button
                   type="submit"
-                  className="rounded-md border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600 hover:border-orange-300 hover:text-orange-700"
+                  className="rounded-md border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-600 hover:border-accent-300 hover:text-accent-700"
                 >
                   Make this the current season
                 </button>

@@ -64,7 +64,7 @@ export function UserRow({
         name="name"
         defaultValue={user.name}
         required
-        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none"
+        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
       />
       <input
         form={saveFormId}
@@ -72,13 +72,13 @@ export function UserRow({
         name="email"
         defaultValue={user.email}
         required
-        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none"
+        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
       />
       <select
         form={saveFormId}
         name="role"
         defaultValue={user.role}
-        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-orange-500 focus:outline-none"
+        className="w-full rounded-md border border-neutral-300 px-2 py-1.5 text-sm focus:border-accent-500 focus:outline-none"
       >
         <option value="MEMBER">Member</option>
         <option value="ADMIN">Admin</option>
@@ -98,14 +98,14 @@ export function UserRow({
           form={saveFormId}
           type="submit"
           disabled={pending}
-          className="rounded-md border border-orange-300 bg-white px-2.5 py-1 text-xs font-semibold text-orange-700 hover:border-orange-400 disabled:opacity-50"
+          className="rounded-md border border-accent-300 bg-white px-2.5 py-1 text-xs font-semibold text-accent-700 hover:border-accent-400 disabled:opacity-50"
         >
           {pending ? "Saving..." : isPending ? "Save & resend" : "Save"}
         </button>
 
         {status === "disabled" && (
           <form action={enableUser.bind(null, user.id)}>
-            <button type="submit" className="text-xs font-semibold text-orange-700 underline hover:no-underline">
+            <button type="submit" className="text-xs font-semibold text-accent-700 underline hover:no-underline">
               Enable
             </button>
           </form>
@@ -113,7 +113,7 @@ export function UserRow({
 
         {isLocked && (
           <form action={unlockUser.bind(null, user.id)}>
-            <button type="submit" className="text-xs font-semibold text-orange-700 underline hover:no-underline">
+            <button type="submit" className="text-xs font-semibold text-accent-700 underline hover:no-underline">
               Unlock
             </button>
           </form>
@@ -121,7 +121,7 @@ export function UserRow({
 
         {status === "active" && canDeactivateOrDelete && (
           <form action={disableUser.bind(null, user.id)}>
-            <button type="submit" className="text-xs font-semibold text-orange-700 underline hover:no-underline">
+            <button type="submit" className="text-xs font-semibold text-accent-700 underline hover:no-underline">
               Disable
             </button>
           </form>

@@ -29,13 +29,13 @@ export default async function LoginPage({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={bannerUrl} alt="Season banner" className="mb-5 w-full rounded-xl object-cover shadow-md" />
         )}
-        <h1 className="font-display mb-1 text-center text-3xl tracking-wide text-orange-600">{siteTitle}</h1>
+        <h1 className="font-display mb-1 text-center text-3xl tracking-wide text-accent-600">{siteTitle}</h1>
         <p className="mb-6 text-center text-sm text-neutral-500">Log in with your email and password.</p>
         <LoginForm next={next ?? "/"} />
         {showSetupLink && (
           <p className="mt-4 text-center text-sm text-neutral-500">
             First time setting this up?{" "}
-            <Link href="/setup" className="font-medium text-orange-600 underline">
+            <Link href="/setup" className="font-medium text-accent-600 underline">
               Set up the admin account
             </Link>
           </p>

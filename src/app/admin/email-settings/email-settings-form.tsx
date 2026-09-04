@@ -34,7 +34,7 @@ export function EmailSettingsForm({
           name="host"
           defaultValue={settings.host}
           placeholder="mail.smtp2go.com"
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
         />
       </label>
 
@@ -44,7 +44,7 @@ export function EmailSettingsForm({
           type="number"
           name="port"
           defaultValue={settings.port}
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
         />
       </label>
 
@@ -54,7 +54,7 @@ export function EmailSettingsForm({
           type="text"
           name="username"
           defaultValue={settings.username}
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
         />
       </label>
 
@@ -64,7 +64,7 @@ export function EmailSettingsForm({
           type="password"
           name="password"
           placeholder={settings.hasPassword ? "•••••••• (leave blank to keep the saved password)" : "Enter a password"}
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
         />
         <span className={`text-xs ${settings.passwordNeedsResave ? "font-medium text-red-600" : "text-neutral-500"}`}>
           {settings.passwordNeedsResave
@@ -81,7 +81,7 @@ export function EmailSettingsForm({
           type="email"
           name="fromEmail"
           defaultValue={settings.fromEmail}
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
         />
       </label>
 
@@ -91,7 +91,7 @@ export function EmailSettingsForm({
           type="text"
           name="fromName"
           defaultValue={settings.fromName}
-          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
         />
       </label>
 
@@ -101,7 +101,7 @@ export function EmailSettingsForm({
       <button
         type="submit"
         disabled={pending}
-        className="w-fit rounded-xl bg-orange-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-orange-600/20 transition hover:bg-orange-700 hover:shadow-lg disabled:opacity-50"
+        className="w-fit rounded-xl bg-accent-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-accent-600/20 transition hover:bg-accent-700 hover:shadow-lg disabled:opacity-50"
       >
         {pending ? "Saving..." : "Save"}
       </button>
