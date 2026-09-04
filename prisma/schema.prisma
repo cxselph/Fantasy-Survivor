@@ -75,6 +75,22 @@ model Castaway {
   @@unique([seasonId, name])
 }
 
+// Single-row (id always 1) admin-managed SMTP config, edited from Admin -> Email Settings.
+// The password is never stored in plaintext - it's AES-256-GCM encrypted with
+// SETTINGS_ENCRYPTION_KEY (see src/lib/secret-cipher.ts) before it ever reaches this table.
+model SmtpSettings {
+  id                 Int      @id @default(1)
+  host               String?
+  port               Int?
+  username           String?
+  fromEmail          String?
+  fromName           String?
+  passwordCiphertext String? // base64
+  passwordIv         String? // base64
+  passwordAuthTag    String? // base64
+  updatedAt          DateTime @updatedAt
+}
+
 enum UserRole {
   ADMIN
   MEMBER

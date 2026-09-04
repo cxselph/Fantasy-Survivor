@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import { prisma } from "@/lib/prisma";
+import { decrypt } from "@/lib/secret-cipher";
 
 export type EmailMessage = {
   to: string;
@@ -7,33 +9,35 @@ export type EmailMessage = {
   text: string;
 };
 
-let cachedTransport: ReturnType<typeof nodemailer.createTransport> | null = null;
-
-function getTransport() {
-  if (cachedTransport) return cachedTransport;
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT || 587);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-  if (!host || !user || !pass) return null;
-
-  cachedTransport = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: { user, pass },
+async function getSmtpConfig() {
+  const settings = await prisma.smtpSettings.findUnique({ where: { id: 1 } });
+  if (!settings?.host || !settings.username || !settings.passwordCiphertext || !settings.passwordIv || !settings.passwordAuthTag) {
+    return null;
+  }
+  const password = decrypt({
+    data: settings.passwordCiphertext,
+    iv: settings.passwordIv,
+    authTag: settings.passwordAuthTag,
   });
-  return cachedTransport;
+  return {
+    host: settings.host,
+    port: settings.port || 587,
+    username: settings.username,
+    password,
+    fromEmail: settings.fromEmail || settings.username,
+    fromName: settings.fromName || "Fantasy Survivor",
+  };
 }
 
-// Provider-agnostic - SMTP2GO (or any other SMTP provider) is configured entirely via env vars,
-// so swapping providers later never touches this function.
+// SMTP config is admin-managed (Admin -> Email Settings), stored encrypted in the DB - see
+// src/lib/actions/smtp-settings.ts. Swapping providers later (SMTP2GO, M365, etc.) is just a
+// matter of what the admin types into that form; this function doesn't change.
 export async function sendEmail(message: EmailMessage): Promise<void> {
-  const transport = getTransport();
+  const config = await getSmtpConfig();
 
-  if (!transport) {
-    // No SMTP configured (e.g. local dev) - log instead of sending so invite/reset flows are
-    // still testable without real credentials.
+  if (!config) {
+    // No SMTP configured yet (e.g. local dev, or before an admin has filled in Email Settings) -
+    // log instead of sending so invite/reset flows are still testable.
     console.log(`[email] SMTP not configured, logging message instead:\n`, {
       to: message.to,
       subject: message.subject,
@@ -42,8 +46,15 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
     return;
   }
 
+  const transport = nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.port === 465,
+    auth: { user: config.username, pass: config.password },
+  });
+
   await transport.sendMail({
-    from: process.env.EMAIL_FROM || "Fantasy Survivor League <no-reply@example.com>",
+    from: `"${config.fromName}" <${config.fromEmail}>`,
     to: message.to,
     subject: message.subject,
     html: message.html,

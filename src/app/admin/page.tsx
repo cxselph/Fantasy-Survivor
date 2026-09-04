@@ -43,6 +43,12 @@ export default async function AdminPage() {
         >
           Manage Users →
         </Link>
+        <Link
+          href="/admin/email-settings"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+        >
+          Email Settings →
+        </Link>
       </div>
 
       {season ? (
