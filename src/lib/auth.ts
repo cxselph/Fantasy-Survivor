@@ -18,6 +18,31 @@ export async function createSession(role: Role) {
     .setExpirationTime("180d")
     .sign(secretKey());
 
+  await setSessionCookie(token);
+}
+
+// Signs in a real (invited) user. Kept alongside the legacy createSession() during the
+// shared-password -> real-account transition; PR2 switches getSession() to read `userId` and
+// `sessionVersion` from this payload shape and retires createSession(role)/the "guest" role.
+export async function createUserSession({
+  userId,
+  role,
+  sessionVersion,
+}: {
+  userId: number;
+  role: "admin" | "member";
+  sessionVersion: number;
+}) {
+  const token = await new SignJWT({ userId, role: role === "admin" ? "admin" : "guest", sessionVersion })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("180d")
+    .sign(secretKey());
+
+  await setSessionCookie(token);
+}
+
+async function setSessionCookie(token: string) {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,

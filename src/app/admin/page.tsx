@@ -37,6 +37,12 @@ export default async function AdminPage() {
         >
           Manage Seasons →
         </Link>
+        <Link
+          href="/admin/users"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+        >
+          Manage Users →
+        </Link>
       </div>
 
       {season ? (

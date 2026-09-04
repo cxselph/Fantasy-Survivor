@@ -75,12 +75,47 @@ model Castaway {
   @@unique([seasonId, name])
 }
 
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+// A real per-person account. Replaces the old shared-password login. Invites and password
+// resets are just states of a User row (passwordHash null = invited, not yet accepted) rather
+// than separate tables, matching how Season inlines its own config.
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique // always stored lowercased/trimmed - normalize before every read/write
+  name     String
+  role     UserRole @default(MEMBER)
+
+  passwordHash String? // null until the invite is accepted / a password is set
+
+  invitedBy            Int?
+  inviteTokenHash      String?   @unique // sha256 of the raw token emailed out; raw token is never stored
+  inviteTokenExpiresAt DateTime?
+
+  resetTokenHash      String?   @unique
+  resetTokenExpiresAt DateTime?
+
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  sessionVersion      Int       @default(0) // bumped on password reset/unlock to invalidate outstanding JWTs
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teams FantasyTeam[]
+}
+
 // One participant's roster for a season.
 model FantasyTeam {
   id        Int      @id @default(autoincrement())
   season    Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   seasonId  Int
   ownerName String
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    Int? // null = unclaimed/historical team; set when an admin links an invited user to it
   locked    Boolean  @default(false) // set by the participant to finalize picks; only an admin can unlock
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -88,6 +123,7 @@ model FantasyTeam {
   picks TeamPick[]
 
   @@unique([seasonId, ownerName])
+  @@unique([seasonId, userId])
 }
 
 // A single drafted castaway on a team. Exactly 5 per team, 1 of which is flagged as Power Player.
