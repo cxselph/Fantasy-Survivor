@@ -14,7 +14,7 @@ export default async function AdminEmailSettingsPage() {
         <h1 className="text-2xl font-bold">Email Settings</h1>
         <BackToAdmin />
       </div>
-      <p className="text-sm text-neutral-500">
+      <p className="rounded-2xl bg-white/90 px-4 py-3 text-sm text-neutral-500 shadow-lg backdrop-blur-sm">
         SMTP configuration used to send invite and password-reset emails. The password is
         encrypted at rest and never shown here once saved.
       </p>

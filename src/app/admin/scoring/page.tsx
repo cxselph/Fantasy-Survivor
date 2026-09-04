@@ -67,7 +67,7 @@ export default async function AdminScoringPage({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold">Weekly Scoring</h1>
-          <p className="text-sm text-neutral-500">
+          <p className="mt-1 w-fit rounded-md bg-white/90 px-2 py-1 text-sm text-neutral-500 shadow-sm backdrop-blur-sm">
             Season {season.number} · {season.totalWeeks} weeks ·{" "}
             {season.mergeWeek ? `Merge at week ${season.mergeWeek}` : "Merge week not set yet"}
           </p>
