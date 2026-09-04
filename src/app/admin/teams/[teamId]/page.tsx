@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { unlockTeam, unlinkTeamUser } from "@/lib/actions/team";
 import { JoinForm } from "@/app/join/join-form";
 import { DeleteTeamButton } from "../delete-team-button";
+import { LinkTeamUserForm } from "../link-team-user-form";
 
 export default async function AdminTeamDetailPage({
   params,
@@ -27,6 +28,13 @@ export default async function AdminTeamDetailPage({
 
   const displayName = team.user?.name ?? team.ownerName;
 
+  const linkCandidates = team.user
+    ? []
+    : await prisma.user.findMany({
+        where: { passwordHash: { not: null }, teams: { none: { seasonId: team.seasonId } } },
+        orderBy: { name: "asc" },
+      });
+
   return (
     <div className="flex flex-col gap-6">
       <div className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
@@ -45,6 +53,12 @@ export default async function AdminTeamDetailPage({
             </form>
           )}
         </div>
+
+        {!team.user && (
+          <div className="mt-2">
+            <LinkTeamUserForm teamId={team.id} candidates={linkCandidates} />
+          </div>
+        )}
 
         <div className="mt-2 flex flex-wrap items-center gap-3">
           {team.locked && (

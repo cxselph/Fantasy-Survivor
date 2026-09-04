@@ -98,3 +98,33 @@ export async function unlinkTeamUser(teamId: number) {
   await prisma.fantasyTeam.update({ where: { id: teamId }, data: { userId: null } });
   revalidatePath("/admin/teams");
 }
+
+export type LinkTeamUserState = { error?: string };
+
+export async function linkTeamUser(
+  teamId: number,
+  _prevState: LinkTeamUserState | undefined,
+  formData: FormData,
+): Promise<LinkTeamUserState> {
+  await requireAdmin();
+
+  const userId = Number(formData.get("userId"));
+  if (!Number.isInteger(userId)) {
+    return { error: "Choose a user to link." };
+  }
+
+  const team = await prisma.fantasyTeam.findUnique({ where: { id: teamId } });
+  if (!team) return { error: "Team not found." };
+
+  const clash = await prisma.fantasyTeam.findUnique({
+    where: { seasonId_userId: { seasonId: team.seasonId, userId } },
+  });
+  if (clash) {
+    return { error: "That user already has a team this season." };
+  }
+
+  await prisma.fantasyTeam.update({ where: { id: teamId }, data: { userId } });
+  revalidatePath("/admin/teams");
+  revalidatePath(`/admin/teams/${teamId}`);
+  return {};
+}
