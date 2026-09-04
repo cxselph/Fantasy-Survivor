@@ -37,15 +37,26 @@ export default async function CastPage({
     .filter((c) => c.isEliminated)
     .sort((a, b) => (a.eliminatedWeek ?? 0) - (b.eliminatedWeek ?? 0) || a.name.localeCompare(b.name));
 
+  const totalPointsFor = (c: (typeof castaways)[number]) => c.scoreEvents.reduce((sum, e) => sum + e.points, 0);
+
+  // Grid tops out at 5 columns (lg:grid-cols-5) - once that few or fewer are still active,
+  // separate tribe bars just waste vertical space on near-empty groups (tribes stop meaning
+  // much this late anyway), so collapse into one row sorted by points instead.
+  const MAX_ROW = 5;
+  const collapseToOneRow = active.length > 0 && active.length <= MAX_ROW;
+
   // Only still-active tribes get a section - once everyone on a tribe is voted
   // out (or the season merges), it drops out instead of leaving an empty header.
-  const groups = [
-    ...tribes.map((tribe) => ({
-      tribe,
-      castaways: active.filter((c) => c.tribeId === tribe.id),
-    })),
-    { tribe: null, castaways: active.filter((c) => c.tribeId === null) },
-  ].filter((group) => group.castaways.length > 0);
+  const groups = collapseToOneRow
+    ? [{ tribe: null, castaways: [...active].sort((a, b) => totalPointsFor(b) - totalPointsFor(a)), collapsed: true }]
+    : [
+        ...tribes.map((tribe) => ({
+          tribe,
+          castaways: active.filter((c) => c.tribeId === tribe.id),
+          collapsed: false,
+        })),
+        { tribe: null, castaways: active.filter((c) => c.tribeId === null), collapsed: false },
+      ].filter((group) => group.castaways.length > 0);
 
   const tribeNameById = new Map(tribes.map((t) => [t.id, t.name]));
 
@@ -63,13 +74,13 @@ export default async function CastPage({
         </p>
       </div>
 
-      {groups.map(({ tribe, castaways: members }) => (
-        <div key={tribe?.id ?? "unassigned"}>
+      {groups.map(({ tribe, castaways: members, collapsed }) => (
+        <div key={tribe?.id ?? (collapsed ? "final" : "unassigned")}>
           <h2
-            className="font-display mb-3 block w-full rounded-xl px-4 py-4 text-center text-2xl tracking-wide text-white shadow-lg"
-            style={{ backgroundColor: tribe?.color ?? "#737373" }}
+            className={`font-display mb-3 block w-full rounded-xl px-4 py-4 text-center text-2xl tracking-wide text-white shadow-lg ${collapsed ? "bg-accent-600" : ""}`}
+            style={collapsed ? undefined : { backgroundColor: tribe?.color ?? "#737373" }}
           >
-            {tribe?.name ?? "Tribe TBD"}
+            {collapsed ? `Final ${members.length}` : (tribe?.name ?? "Tribe TBD")}
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {members.map((castaway) => (
