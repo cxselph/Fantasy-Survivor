@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveSeason } from "@/lib/scoring";
 import { NoSeasonYet } from "@/components/no-season-yet";
+import { BackToAdmin } from "@/components/back-to-admin";
 
 export default async function AdminTeamsPage() {
   await requireAdmin();
@@ -24,7 +25,10 @@ export default async function AdminTeamsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Manage Teams — Season {season.number}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-bold">Manage Teams — Season {season.number}</h1>
+        <BackToAdmin />
+      </div>
 
       {shouldHide && (
         <p className="rounded-md bg-yellow-50 px-3 py-2 text-sm text-yellow-800">

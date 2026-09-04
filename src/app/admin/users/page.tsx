@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { BackToAdmin } from "@/components/back-to-admin";
 import { InviteForm } from "./invite-form";
 import { UserRow, USER_ROW_GRID_TEMPLATE } from "./user-row";
 
@@ -19,7 +20,10 @@ export default async function AdminUsersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Manage Users</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl font-bold">Manage Users</h1>
+        <BackToAdmin />
+      </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
         <h2 className="mb-3 font-semibold">Invite a user</h2>
