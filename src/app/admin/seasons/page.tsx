@@ -41,9 +41,9 @@ export default async function AdminSeasonsPage() {
         <p className="mb-3 text-sm text-neutral-500">
           Recreates a full season - cast, tribes, drafted teams, and scoring history - from a
           &quot;Backup&quot; file downloaded above. Always creates a brand-new season (starts
-          inactive); if that season&apos;s number already exists, delete or renumber it first.
-          Drafted teams are re-linked to a matching account by email where possible, and left
-          unclaimed otherwise.
+          inactive); if that season&apos;s number already exists, delete or renumber it first, or
+          set a different number below to restore it alongside the original. Drafted teams are
+          re-linked to a matching account by email where possible, and left unclaimed otherwise.
         </p>
         <RestoreSeasonForm />
       </section>

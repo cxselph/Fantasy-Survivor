@@ -18,6 +18,16 @@ export function RestoreSeasonForm() {
           className="text-sm"
         />
       </label>
+      <label className="flex flex-col gap-0.5 text-xs font-medium">
+        Restore as season #
+        <input
+          type="number"
+          name="seasonNumber"
+          min={1}
+          placeholder="from file"
+          className="w-28 rounded border border-neutral-300 px-2 py-1 text-sm"
+        />
+      </label>
       <button
         type="submit"
         disabled={pending}

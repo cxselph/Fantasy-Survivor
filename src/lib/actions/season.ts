@@ -127,16 +127,24 @@ export async function restoreSeason(
     return { error: "That doesn't look like a season backup file." };
   }
 
-  const existing = await prisma.season.findUnique({ where: { number: backup.season.number } });
+  const overrideRaw = String(formData.get("seasonNumber") || "").trim();
+  const number = overrideRaw ? Number(overrideRaw) : backup.season.number;
+  if (!Number.isInteger(number) || number < 1) {
+    return { error: "Season number must be a positive whole number." };
+  }
+
+  const existing = await prisma.season.findUnique({ where: { number } });
   if (existing) {
-    return { error: `Season ${backup.season.number} already exists - delete or renumber it first.` };
+    return {
+      error: `Season ${number} already exists - delete or renumber it first, or restore under a different number below.`,
+    };
   }
 
   await prisma.$transaction(
     async (tx) => {
       // New seasons start inactive, same as createSeason() - restoring never silently switches
       // what everyone sees.
-      const season = await tx.season.create({ data: { ...backup.season, isActive: false } });
+      const season = await tx.season.create({ data: { ...backup.season, number, isActive: false } });
 
       const tribeIdByName = new Map<string, number>();
       for (const t of backup.tribes) {
@@ -186,5 +194,5 @@ export async function restoreSeason(
   );
 
   refresh();
-  return { success: `Season ${backup.season.number} restored.` };
+  return { success: `Season ${number} restored.` };
 }
