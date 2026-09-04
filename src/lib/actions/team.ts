@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/auth";
+import { requireAdmin, requireSession } from "@/lib/auth";
 import { getActiveSeason } from "@/lib/scoring";
 
 export type SaveTeamState = { error?: string };
@@ -32,8 +32,9 @@ export async function saveTeam(
   }
 
   const season = await getActiveSeason();
+  const isAdmin = session.role === "admin";
 
-  if (season.draftLocked && session.role !== "admin") {
+  if (season.draftLocked && !isAdmin) {
     return { error: "The draft is locked for this season — picks can no longer be changed." };
   }
 
@@ -41,6 +42,11 @@ export async function saveTeam(
     where: { seasonId_ownerName: { seasonId: season.id, ownerName } },
   });
 
+  if (existing?.locked && !isAdmin) {
+    return { error: "This team is locked in. Ask the commissioner to unlock it if you need to make a change." };
+  }
+
+  const wantsLock = formData.get("lockTeam") === "on";
   const team = existing
     ? existing
     : await prisma.fantasyTeam.create({ data: { seasonId: season.id, ownerName } });
@@ -54,9 +60,17 @@ export async function saveTeam(
         isPowerPlayer: castawayId === powerPlayerId,
       })),
     }),
+    // Locking only ever turns on here - unlocking is an admin-only action.
+    ...(wantsLock ? [prisma.fantasyTeam.update({ where: { id: team.id }, data: { locked: true } })] : []),
   ]);
 
   revalidatePath("/");
 
   redirect(`/join?owner=${encodeURIComponent(ownerName)}`);
+}
+
+export async function unlockTeam(teamId: number) {
+  await requireAdmin();
+  await prisma.fantasyTeam.update({ where: { id: teamId }, data: { locked: false } });
+  revalidatePath("/join");
 }

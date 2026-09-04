@@ -38,7 +38,7 @@ export default async function CastPage() {
       {groups.map(({ tribe, castaways: members }) => (
         <div key={tribe?.id ?? "unassigned"}>
           <h2
-            className="mb-3 inline-block rounded-md px-3 py-1 text-sm font-bold uppercase tracking-wide text-white"
+            className="mb-3 block w-full rounded-md px-4 py-4 text-center text-2xl font-extrabold uppercase tracking-wide text-white"
             style={{ backgroundColor: tribe?.color ?? "#737373" }}
           >
             {tribe?.name ?? "Tribe TBD"}

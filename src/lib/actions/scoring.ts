@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { getActiveSeason, pointsForChallenge, pointsForPlacement, pointsForTribal } from "@/lib/scoring";
+import { resolveUploadedImage } from "@/lib/upload";
 import { ScoreEventType } from "@/generated/prisma/enums";
+import type { Prisma } from "@/generated/prisma/client";
 
 function refresh() {
   revalidatePath("/");
@@ -133,14 +135,30 @@ export async function updateSeasonSettings(
   const draftLocked = formData.get("draftLocked") === "on";
   const mergeWeekRaw = String(formData.get("mergeWeek") || "").trim();
   const mergeWeek = mergeWeekRaw ? Number(mergeWeekRaw) : null;
+  const removeBanner = formData.get("removeBanner") === "on";
+  const siteTitle = String(formData.get("siteTitle") || "").trim();
 
-  await prisma.season.update({
-    where: { id: seasonId },
-    data: { draftLocked, mergeWeek },
-  });
+  const { url: bannerResolved, error: bannerError } = await resolveUploadedImage(
+    formData,
+    "bannerFile",
+    "bannerUrl",
+  );
+  if (bannerError) return { error: bannerError };
+
+  const data: Prisma.SeasonUpdateInput = { draftLocked, mergeWeek, siteTitle: siteTitle || null };
+  if (removeBanner) {
+    data.bannerUrl = null;
+  } else if (bannerResolved) {
+    // Only touch bannerUrl when a new one was actually given - otherwise leave it
+    // as-is, since this form is submitted every time any season setting changes.
+    data.bannerUrl = bannerResolved;
+  }
+
+  await prisma.season.update({ where: { id: seasonId }, data });
 
   revalidatePath("/");
   revalidatePath("/join");
+  revalidatePath("/login");
   revalidatePath("/admin");
   revalidatePath("/admin/scoring");
 

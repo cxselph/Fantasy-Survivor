@@ -10,16 +10,19 @@ export function JoinForm({
   selectedIds,
   powerPlayerId,
   locked,
+  alreadyLocked,
 }: {
   castaways: Castaway[];
   ownerName: string;
   selectedIds: number[];
   powerPlayerId: number | null;
   locked: boolean;
+  alreadyLocked: boolean;
 }) {
   const [state, formAction, pending] = useActionState(saveTeam, undefined);
   const [selected, setSelected] = useState<Set<number>>(new Set(selectedIds));
   const [powerPlayer, setPowerPlayer] = useState<number | null>(powerPlayerId);
+  const [wantsLock, setWantsLock] = useState(false);
 
   function toggle(id: number) {
     setSelected((prev) => {
@@ -35,7 +38,15 @@ export function JoinForm({
   }
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form
+      action={formAction}
+      onSubmit={(e) => {
+        if (wantsLock && !window.confirm("Lock in your picks? Only the commissioner can unlock this afterward.")) {
+          e.preventDefault();
+        }
+      }}
+      className="flex flex-col gap-4"
+    >
       <fieldset disabled={locked} className="flex flex-col gap-4 disabled:opacity-60">
         <label className="flex max-w-xs flex-col gap-1 text-sm font-medium">
           Your name
@@ -96,12 +107,25 @@ export function JoinForm({
 
         {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
 
+        {!alreadyLocked && (
+          <label className="flex items-center gap-2 text-sm text-neutral-600">
+            <input
+              type="checkbox"
+              name="lockTeam"
+              checked={wantsLock}
+              onChange={(e) => setWantsLock(e.target.checked)}
+            />
+            🔒 Lock in my picks — I&apos;m done, don&apos;t let anyone (including me) change this without the
+            commissioner unlocking it.
+          </label>
+        )}
+
         <button
           type="submit"
           disabled={pending}
           className="w-fit rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"
         >
-          {pending ? "Saving..." : "Save Team"}
+          {pending ? "Saving..." : wantsLock ? "Save & Lock In" : "Save Team"}
         </button>
       </fieldset>
     </form>

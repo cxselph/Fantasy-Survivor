@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { getActiveSeason } from "@/lib/scoring";
+import { resolveUploadedImage } from "@/lib/upload";
 
 function refresh() {
   revalidatePath("/cast");
@@ -11,29 +12,15 @@ function refresh() {
   revalidatePath("/admin/cast");
 }
 
-const MAX_PHOTO_BYTES = 4 * 1024 * 1024; // 4MB
-
 /**
  * A file upload takes priority over the URL text field. Returns `error` if the
- * uploaded file isn't a usable image, in which case `photoUrl` is left untouched.
+ * uploaded file isn't a usable image. Leaving both blank clears the photo.
  */
 async function resolvePhotoUrl(
   formData: FormData,
 ): Promise<{ photoUrl: string | null | undefined; error?: string }> {
-  const file = formData.get("photoFile");
-  if (file instanceof File && file.size > 0) {
-    if (!file.type.startsWith("image/")) {
-      return { photoUrl: undefined, error: "Photo file must be an image." };
-    }
-    if (file.size > MAX_PHOTO_BYTES) {
-      return { photoUrl: undefined, error: "Photo file is too large (max 4MB)." };
-    }
-    const buffer = Buffer.from(await file.arrayBuffer());
-    return { photoUrl: `data:${file.type};base64,${buffer.toString("base64")}` };
-  }
-
-  const photoUrlText = String(formData.get("photoUrl") || "").trim();
-  return { photoUrl: photoUrlText || null };
+  const { url, error } = await resolveUploadedImage(formData, "photoFile", "photoUrl");
+  return { photoUrl: url, error };
 }
 
 export async function setEliminated(castawayId: number, isEliminated: boolean, week: number | null) {

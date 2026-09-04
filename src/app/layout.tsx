@@ -4,6 +4,7 @@ import Link from "next/link";
 import "./globals.css";
 import { getSession } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
+import { getActiveSeason, getSiteTitle } from "@/lib/scoring";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,15 @@ const NAV_LINKS = [
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const session = await getSession();
 
+  let siteTitle = "🔥 Survivor League";
+  if (session) {
+    try {
+      siteTitle = getSiteTitle(await getActiveSeason());
+    } catch {
+      // No season configured yet - fall back to the generic title.
+    }
+  }
+
   return (
     <html
       lang="en"
@@ -40,9 +50,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <header className="border-b border-neutral-200 bg-white">
             <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
               <div className="flex flex-wrap items-center gap-4">
-                <span className="font-bold tracking-tight text-orange-600">
-                  🔥 Survivor 51 League
-                </span>
+                <span className="font-bold tracking-tight text-orange-600">{siteTitle}</span>
                 <nav className="flex flex-wrap gap-3 text-sm font-medium">
                   {NAV_LINKS.map((link) => (
                     <Link

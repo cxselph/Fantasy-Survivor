@@ -18,6 +18,8 @@ model Season {
   isActive    Boolean  @default(true)
   draftLocked Boolean  @default(false) // once true, participants can no longer change their picks
   mergeWeek   Int? // week number merge happened; null until admin sets it
+  bannerUrl   String? // shown on the login page
+  siteTitle   String? // shown on the login page and the nav bar once logged in; falls back to a default if unset
   createdAt   DateTime @default(now())
 
   // Scoring rules, kept per-season so future seasons can change them without a migration.
@@ -76,6 +78,7 @@ model FantasyTeam {
   season    Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   seasonId  Int
   ownerName String
+  locked    Boolean  @default(false) // set by the participant to finalize picks; only an admin can unlock
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

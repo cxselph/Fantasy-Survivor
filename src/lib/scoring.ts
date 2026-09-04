@@ -12,6 +12,10 @@ export async function getActiveSeason() {
   return season;
 }
 
+export function getSiteTitle(season: Season) {
+  return season.siteTitle?.trim() || `🔥 Survivor ${season.number} League`;
+}
+
 export function pointsForChallenge(season: Season, week: number) {
   const isPostMerge = season.mergeWeek != null && week >= season.mergeWeek;
   return isPostMerge ? season.challengeWinPostMerge : season.challengeWinPreMerge;
