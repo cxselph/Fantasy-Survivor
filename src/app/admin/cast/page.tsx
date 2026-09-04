@@ -7,10 +7,17 @@ import { EliminationToggle } from "./elimination-toggle";
 import { EditCastawayForm } from "./edit-castaway-form";
 import { AddTribeForm, AddCastawayForm } from "./add-forms";
 import { BackToAdmin } from "@/components/back-to-admin";
+import { NoSeasonYet } from "@/components/no-season-yet";
 
 export default async function AdminCastPage() {
   await requireAdmin();
-  const season = await getActiveSeason();
+
+  let season;
+  try {
+    season = await getActiveSeason();
+  } catch {
+    return <NoSeasonYet isAdmin />;
+  }
 
   const [tribes, castaways] = await Promise.all([
     prisma.tribe.findMany({ where: { seasonId: season.id }, orderBy: { name: "asc" } }),

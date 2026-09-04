@@ -52,13 +52,13 @@ dashboard.
 
 ## Deploying to Vercel
 
-This app is built to deploy on Vercel with no code changes:
-
-1. Push this repo to GitHub (or your preferred git host) and import it into Vercel.
-2. Provision a Postgres database (Vercel Postgres, Neon, Supabase, etc.) and set `DATABASE_URL`
-   in the Vercel project's environment variables.
+1. Push this repo to GitHub and import it into a Vercel project (or `vercel link`).
+2. Add a Postgres database from Vercel's Storage tab (Marketplace → Neon). This automatically
+   sets both `DATABASE_URL` (pooled — used by the app at runtime) and `DATABASE_URL_UNPOOLED`
+   (direct — used only for running migrations) as project env vars. No extra wiring needed.
 3. Set `SITE_PASSWORD`, `ADMIN_PASSWORD`, and a fresh `SESSION_SECRET` in Vercel's environment
    variables — don't reuse the local dev values.
-4. Run `npx prisma migrate deploy` against the production database (locally with `DATABASE_URL`
-   pointed at prod, or via a Vercel deploy hook) before the first real visit, then
-   `npx prisma db seed` once to load the cast.
+4. Deploy. The build runs `prisma migrate deploy` automatically (see `package.json`), so the
+   schema is applied on every deploy — no manual migration step needed. Season/cast data isn't
+   seeded automatically in production; add it via the admin UI (Manage Seasons → Manage Cast &
+   Tribes) or copy it over from a local database dump.

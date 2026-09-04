@@ -2,6 +2,7 @@ import { getActiveSeason } from "@/lib/scoring";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { unlockTeam } from "@/lib/actions/team";
+import { NoSeasonYet } from "@/components/no-season-yet";
 import { JoinForm } from "./join-form";
 import { TeamSwitcher } from "./team-switcher";
 
@@ -12,8 +13,14 @@ export default async function JoinPage({
 }) {
   const { owner } = await searchParams;
   const session = await getSession();
-  const season = await getActiveSeason();
   const isAdmin = session?.role === "admin";
+
+  let season;
+  try {
+    season = await getActiveSeason();
+  } catch {
+    return <NoSeasonYet isAdmin={isAdmin} />;
+  }
 
   const [castaways, teams] = await Promise.all([
     prisma.castaway.findMany({

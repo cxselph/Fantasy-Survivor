@@ -6,7 +6,13 @@ import { ResetScoringButton } from "./reset-scoring-button";
 
 export default async function AdminPage() {
   await requireAdmin();
-  const season = await getActiveSeason();
+
+  let season;
+  try {
+    season = await getActiveSeason();
+  } catch {
+    season = null;
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -33,19 +39,31 @@ export default async function AdminPage() {
         </Link>
       </div>
 
-      <section className="rounded-lg border border-neutral-200 bg-white p-4">
-        <h2 className="mb-3 font-semibold">Season Settings</h2>
-        <SeasonSettingsForm season={season} />
-      </section>
+      {season ? (
+        <>
+          <section className="rounded-lg border border-neutral-200 bg-white p-4">
+            <h2 className="mb-3 font-semibold">Season Settings</h2>
+            <SeasonSettingsForm season={season} />
+          </section>
 
-      <section className="rounded-lg border border-red-200 bg-red-50/40 p-4">
-        <h2 className="mb-1 font-semibold text-red-800">Danger Zone</h2>
-        <p className="mb-3 text-sm text-red-700">
-          For testing before the season starts (or fixing a bad batch of entries). This only
-          affects Season {season.number} — other seasons are untouched.
-        </p>
-        <ResetScoringButton seasonLabel={`Season ${season.number}`} />
-      </section>
+          <section className="rounded-lg border border-red-200 bg-red-50/40 p-4">
+            <h2 className="mb-1 font-semibold text-red-800">Danger Zone</h2>
+            <p className="mb-3 text-sm text-red-700">
+              For testing before the season starts (or fixing a bad batch of entries). This only
+              affects Season {season.number} — other seasons are untouched.
+            </p>
+            <ResetScoringButton seasonLabel={`Season ${season.number}`} />
+          </section>
+        </>
+      ) : (
+        <div className="rounded-lg border border-dashed border-neutral-300 bg-white p-6 text-sm text-neutral-500">
+          No season is active yet. Head to{" "}
+          <Link href="/admin/seasons" className="font-medium text-orange-600 underline">
+            Manage Seasons
+          </Link>{" "}
+          to create one and activate it.
+        </div>
+      )}
     </div>
   );
 }

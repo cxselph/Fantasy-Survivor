@@ -10,6 +10,13 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // The Prisma CLI (migrate, generate, studio) only supports a single `url`
+    // here - no directUrl field in this Prisma version. So: prefer the direct/
+    // unpooled connection for CLI/migration use when one is configured
+    // (Vercel's Neon integration sets DATABASE_URL_UNPOOLED automatically).
+    // The app's own runtime client (src/lib/prisma.ts) reads DATABASE_URL
+    // directly and independently, so it keeps using the pooled connection
+    // regardless of what's set here.
+    url: process.env["DATABASE_URL_UNPOOLED"] || process.env["DATABASE_URL"],
   },
 });

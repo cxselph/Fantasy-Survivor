@@ -1,5 +1,7 @@
 import { getAllSeasons, getSeasonForView } from "@/lib/scoring";
+import { getSession } from "@/lib/auth";
 import { SeasonSwitcher } from "@/components/season-switcher";
+import { NoSeasonYet } from "@/components/no-season-yet";
 
 export default async function RulesPage({
   searchParams,
@@ -7,10 +9,17 @@ export default async function RulesPage({
   searchParams: Promise<{ season?: string }>;
 }) {
   const { season: seasonParam } = await searchParams;
-  const [season, allSeasons] = await Promise.all([
-    getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
-    getAllSeasons(),
-  ]);
+
+  let season, allSeasons;
+  try {
+    [season, allSeasons] = await Promise.all([
+      getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
+      getAllSeasons(),
+    ]);
+  } catch {
+    const session = await getSession();
+    return <NoSeasonYet isAdmin={session?.role === "admin"} />;
+  }
 
   const rows = [
     { label: "Won a challenge (pre-merge)", value: season.challengeWinPreMerge },

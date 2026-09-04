@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth";
 import { getAllSeasons, getSeasonForView } from "@/lib/scoring";
 import { prisma } from "@/lib/prisma";
 import { SeasonSwitcher } from "@/components/season-switcher";
+import { NoSeasonYet } from "@/components/no-season-yet";
 import { CastawayCard } from "./castaway-card";
 
 export default async function CastPage({
@@ -11,10 +12,16 @@ export default async function CastPage({
 }) {
   const { season: seasonParam } = await searchParams;
   const session = await getSession();
-  const [season, allSeasons] = await Promise.all([
-    getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
-    getAllSeasons(),
-  ]);
+
+  let season, allSeasons;
+  try {
+    [season, allSeasons] = await Promise.all([
+      getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
+      getAllSeasons(),
+    ]);
+  } catch {
+    return <NoSeasonYet isAdmin={session?.role === "admin"} />;
+  }
 
   const [tribes, castaways] = await Promise.all([
     prisma.tribe.findMany({ where: { seasonId: season.id }, orderBy: { name: "asc" } }),
