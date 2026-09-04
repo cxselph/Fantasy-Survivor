@@ -15,10 +15,12 @@ async function readRole(token: string | undefined): Promise<"guest" | "admin" | 
   }
 }
 
+const PUBLIC_PATHS = ["/login", "/accept-invite"];
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === "/login") {
+  if (PUBLIC_PATHS.includes(pathname)) {
     return NextResponse.next();
   }
 
