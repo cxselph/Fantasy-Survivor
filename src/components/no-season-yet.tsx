@@ -8,7 +8,7 @@ export function NoSeasonYet({ isAdmin }: { isAdmin: boolean }) {
         {isAdmin ? (
           <>
             Create a season in{" "}
-            <Link href="/admin/seasons" className="font-medium text-orange-600 underline">
+            <Link href="/admin/seasons" className="font-medium text-accent-600 underline">
               Manage Seasons
             </Link>{" "}
             and activate it to get started.

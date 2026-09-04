@@ -15,7 +15,7 @@ export function NavLinks({ links }: { links: { href: string; label: string }[] }
             key={link.href}
             href={link.href}
             className={`rounded-full px-3 py-1.5 transition-colors ${
-              isActive ? "bg-orange-600 text-white" : "text-neutral-600 hover:bg-orange-50 hover:text-orange-700"
+              isActive ? "bg-accent-600 text-white" : "text-neutral-600 hover:bg-accent-50 hover:text-accent-700"
             }`}
           >
             {link.label}

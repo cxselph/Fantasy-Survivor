@@ -49,7 +49,7 @@ export default async function DashboardPage({
           {season.isActive && (
             <>
               {" "}
-              <a href="/join" className="font-medium text-orange-600 underline">
+              <a href="/join" className="font-medium text-accent-600 underline">
                 Draft your team
               </a>{" "}
               to get on the board.
@@ -65,21 +65,21 @@ export default async function DashboardPage({
               <div
                 key={team.teamId}
                 className={`rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur-sm transition hover:shadow-xl ${
-                  rank === 1 ? "ring-2 ring-orange-400" : ""
+                  rank === 1 ? "ring-2 ring-accent-400" : ""
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span
                       className={`flex h-9 w-9 items-center justify-center rounded-full text-lg font-bold ${
-                        medal ? "bg-orange-100" : "bg-neutral-100 text-neutral-500"
+                        medal ? "bg-accent-100" : "bg-neutral-100 text-neutral-500"
                       }`}
                     >
                       {medal ?? rank}
                     </span>
                     <h2 className="font-display text-xl tracking-wide text-neutral-900">{team.ownerName}</h2>
                   </div>
-                  <span className="text-2xl font-bold text-orange-600">{team.total}</span>
+                  <span className="text-2xl font-bold text-accent-600">{team.total}</span>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {team.picks.map((pick) => (
@@ -93,7 +93,7 @@ export default async function DashboardPage({
                     >
                       <span>{pick.name}</span>
                       {pick.isPowerPlayer && (
-                        <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+                        <span className="rounded-full bg-accent-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
                           PP
                         </span>
                       )}

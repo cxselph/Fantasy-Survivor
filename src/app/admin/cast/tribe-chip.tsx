@@ -23,7 +23,7 @@ export function TribeChip({ tribe }: { tribe: Tribe }) {
           className="w-24 rounded border border-neutral-300 px-1.5 py-0.5 text-sm"
         />
         <input type="color" name="color" defaultValue={tribe.color} className="h-6 w-8 rounded border border-neutral-300" />
-        <button type="submit" disabled={pending} className="text-xs font-medium text-orange-700 disabled:opacity-50">
+        <button type="submit" disabled={pending} className="text-xs font-medium text-accent-700 disabled:opacity-50">
           Save
         </button>
         <button type="button" onClick={() => setEditing(false)} className="text-xs text-neutral-400 hover:text-neutral-600">

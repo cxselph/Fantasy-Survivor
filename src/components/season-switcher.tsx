@@ -21,8 +21,8 @@ export function SeasonSwitcher({
           href={season.isActive ? basePath : `${basePath}?season=${season.number}`}
           className={`rounded-full border px-3 py-1 ${
             season.number === currentNumber
-              ? "border-orange-600 bg-orange-50 text-orange-700"
-              : "border-neutral-200 text-neutral-600 hover:border-orange-300"
+              ? "border-accent-600 bg-accent-50 text-accent-700"
+              : "border-neutral-200 text-neutral-600 hover:border-accent-300"
           }`}
         >
           {season.number}

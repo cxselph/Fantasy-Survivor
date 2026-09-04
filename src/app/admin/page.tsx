@@ -21,37 +21,37 @@ export default async function AdminPage() {
       <div className="flex gap-3">
         <Link
           href="/admin/cast"
-          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-accent-300"
         >
           Manage Cast &amp; Tribes →
         </Link>
         <Link
           href="/admin/scoring"
-          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-accent-300"
         >
           Enter Weekly Scoring →
         </Link>
         <Link
           href="/admin/seasons"
-          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-accent-300"
         >
           Manage Seasons →
         </Link>
         <Link
           href="/admin/teams"
-          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-accent-300"
         >
           Manage Teams →
         </Link>
         <Link
           href="/admin/users"
-          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-accent-300"
         >
           Manage Users →
         </Link>
         <Link
           href="/admin/email-settings"
-          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-accent-300"
         >
           Email Settings →
         </Link>
@@ -76,7 +76,7 @@ export default async function AdminPage() {
       ) : (
         <div className="rounded-lg border border-dashed border-neutral-300 bg-white p-6 text-sm text-neutral-500">
           No season is active yet. Head to{" "}
-          <Link href="/admin/seasons" className="font-medium text-orange-600 underline">
+          <Link href="/admin/seasons" className="font-medium text-accent-600 underline">
             Manage Seasons
           </Link>{" "}
           to create one and activate it.

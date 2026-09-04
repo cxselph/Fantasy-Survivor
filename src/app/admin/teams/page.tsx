@@ -44,7 +44,7 @@ export default async function AdminTeamsPage() {
                   </td>
                   <td className="py-2 pr-2">{team.locked ? "🔒 Locked" : "Unlocked"}</td>
                   <td className="py-2 pr-2">
-                    <Link href={`/admin/teams/${team.id}`} className="text-orange-700 underline hover:no-underline">
+                    <Link href={`/admin/teams/${team.id}`} className="text-accent-700 underline hover:no-underline">
                       Manage →
                     </Link>
                   </td>

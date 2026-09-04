@@ -171,12 +171,16 @@ export async function updateSeasonSettings(
   const siteTitle = String(formData.get("siteTitle") || "").trim();
   const backgroundDimRaw = String(formData.get("backgroundDim") || "").trim();
   const backgroundDim = backgroundDimRaw ? Number(backgroundDimRaw) : 45;
+  const accentColorRaw = String(formData.get("accentColor") || "").trim();
 
   if (!Number.isInteger(totalWeeks) || totalWeeks < 1) {
     return { error: "Season length must be a whole number of weeks." };
   }
   if (!Number.isInteger(backgroundDim) || backgroundDim < 0 || backgroundDim > 100) {
     return { error: "Background darkness must be between 0 and 100." };
+  }
+  if (accentColorRaw && !/^#[0-9a-fA-F]{6}$/.test(accentColorRaw)) {
+    return { error: "Theme color must be a valid hex color." };
   }
 
   const { url: bannerResolved, error: bannerError } = await resolveUploadedImage(
@@ -199,6 +203,7 @@ export async function updateSeasonSettings(
     totalWeeks,
     siteTitle: siteTitle || null,
     backgroundDim,
+    accentColor: accentColorRaw || null,
   };
   if (removeBanner) {
     data.bannerUrl = null;

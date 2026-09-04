@@ -10,7 +10,7 @@ export default async function AcceptInvitePage({
   return (
     <div className="flex min-h-[85vh] flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-2xl bg-white/95 p-8 shadow-2xl backdrop-blur">
-        <h1 className="font-display mb-1 text-center text-3xl tracking-wide text-orange-600">
+        <h1 className="font-display mb-1 text-center text-3xl tracking-wide text-accent-600">
           🔥 Welcome to the League
         </h1>
         {token ? (

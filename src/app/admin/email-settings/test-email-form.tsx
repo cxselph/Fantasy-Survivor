@@ -16,13 +16,13 @@ export function TestEmailForm() {
             name="to"
             required
             placeholder="you@example.com"
-            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+            className="rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none"
           />
         </label>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl border border-orange-300 bg-white px-4 py-2 text-sm font-semibold text-orange-700 shadow-sm transition hover:border-orange-400 disabled:opacity-50"
+          className="rounded-xl border border-accent-300 bg-white px-4 py-2 text-sm font-semibold text-accent-700 shadow-sm transition hover:border-accent-400 disabled:opacity-50"
         >
           {pending ? "Sending..." : "Send test"}
         </button>
