@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { resendInvite } from "@/lib/actions/users";
 import { InviteForm } from "./invite-form";
+import { PendingInviteRow } from "./pending-invite-row";
 
 export default async function AdminUsersPage() {
   await requireAdmin();
@@ -46,29 +46,24 @@ export default async function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-b border-neutral-100">
-                  <td className="py-2 pr-2">{user.name}</td>
-                  <td className="py-2 pr-2 text-neutral-600">{user.email}</td>
-                  <td className="py-2 pr-2">{user.role === "ADMIN" ? "Admin" : "Member"}</td>
-                  <td className="py-2 pr-2">
-                    {user.passwordHash ? (
+              {users.map((user) =>
+                user.passwordHash ? (
+                  <tr key={user.id} className="border-b border-neutral-100">
+                    <td className="py-2 pr-2">{user.name}</td>
+                    <td className="py-2 pr-2 text-neutral-600">{user.email}</td>
+                    <td className="py-2 pr-2">{user.role === "ADMIN" ? "Admin" : "Member"}</td>
+                    <td className="py-2 pr-2">
                       <span className="text-green-700">Active</span>
-                    ) : (
-                      <span className="text-yellow-700">Invite pending</span>
-                    )}
-                  </td>
-                  <td className="py-2 pr-2">
-                    {!user.passwordHash && (
-                      <form action={resendInvite.bind(null, user.id)}>
-                        <button type="submit" className="text-orange-700 underline hover:no-underline">
-                          Resend invite
-                        </button>
-                      </form>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="py-2 pr-2"></td>
+                  </tr>
+                ) : (
+                  <PendingInviteRow
+                    key={user.id}
+                    user={{ id: user.id, email: user.email, name: user.name, role: user.role }}
+                  />
+                ),
+              )}
             </tbody>
           </table>
         )}

@@ -60,19 +60,54 @@ export async function inviteUser(
   return { success: `Invite sent to ${email}.` };
 }
 
-export async function resendInvite(userId: number) {
+export type UpdateInviteState = { error?: string; success?: string };
+
+// Edits a still-pending invite's email/name/role (e.g. fixing a typo'd address) and always
+// regenerates + resends the invite token - submitting with nothing changed is just a resend.
+// Editing in place (rather than delete-and-recreate) keeps any FantasyTeam.userId link intact,
+// since that's tied to the User row's id, not its email.
+export async function updateInvite(
+  _prevState: UpdateInviteState | undefined,
+  formData: FormData,
+): Promise<UpdateInviteState> {
   await requireAdmin();
-  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
-  if (user.passwordHash) return; // already accepted, nothing to resend
+
+  const userId = Number(formData.get("userId"));
+  const email = normalizeEmail(String(formData.get("email") || ""));
+  const name = String(formData.get("name") || "").trim();
+  const role = formData.get("role") === "ADMIN" ? "ADMIN" : "MEMBER";
+
+  if (!Number.isInteger(userId)) return { error: "Invalid user." };
+  if (!email || !email.includes("@")) return { error: "Enter a valid email address." };
+  if (!name) return { error: "Enter a name." };
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { error: "User not found." };
+  if (user.passwordHash) {
+    return { error: "This account has already been claimed and can no longer be edited here." };
+  }
+
+  if (email !== user.email) {
+    const clash = await prisma.user.findUnique({ where: { email } });
+    if (clash && clash.id !== userId) {
+      return { error: `${email} is already in use by another account.` };
+    }
+  }
 
   const rawToken = generateToken();
   const inviteTokenHash = hashToken(rawToken);
   const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_MS);
-  await prisma.user.update({ where: { id: userId }, data: { inviteTokenHash, inviteTokenExpiresAt } });
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { email, name, role, inviteTokenHash, inviteTokenExpiresAt },
+  });
 
   const acceptUrl = `${appUrl()}/accept-invite?token=${rawToken}`;
-  await sendEmail({ to: user.email, ...inviteEmail({ name: user.name, acceptUrl }) });
+  await sendEmail({ to: email, ...inviteEmail({ name, acceptUrl }) });
+
   revalidatePath("/admin/users");
+  return { success: `Invite updated and resent to ${email}.` };
 }
 
 export type AcceptInviteState = { error?: string };
