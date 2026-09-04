@@ -33,7 +33,7 @@ export function WeeklyForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <div className="flex items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <label className="flex w-32 flex-col gap-1 text-sm font-medium">
           Week
           <input

@@ -20,7 +20,7 @@ export function SeasonRow({ season }: { season: Season }) {
 
   return (
     <div className="rounded-md border border-neutral-200 px-3 py-2 text-sm">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <span className="font-medium">
             Season {season.number}: {season.name}
@@ -31,7 +31,7 @@ export function SeasonRow({ season }: { season: Season }) {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setEditing((v) => !v)}
