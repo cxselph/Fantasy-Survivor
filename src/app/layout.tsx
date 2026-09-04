@@ -76,14 +76,17 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                 <span className="font-display text-xl tracking-wide text-orange-600">{siteTitle}</span>
                 <NavLinks links={navLinks} />
               </div>
-              <form action={logout}>
-                <button
-                  type="submit"
-                  className="text-sm text-neutral-400 hover:text-neutral-700"
-                >
-                  Log out
-                </button>
-              </form>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-neutral-500">{session.name}</span>
+                <form action={logout}>
+                  <button
+                    type="submit"
+                    className="text-sm text-neutral-400 hover:text-neutral-700"
+                  >
+                    Log out
+                  </button>
+                </form>
+              </div>
             </div>
           </header>
         )}

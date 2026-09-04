@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { unlockUser } from "@/lib/actions/users";
 import { InviteForm } from "./invite-form";
 import { PendingInviteRow } from "./pending-invite-row";
 
@@ -46,24 +47,40 @@ export default async function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) =>
-                user.passwordHash ? (
+              {users.map((user) => {
+                if (!user.passwordHash) {
+                  return (
+                    <PendingInviteRow
+                      key={user.id}
+                      user={{ id: user.id, email: user.email, name: user.name, role: user.role }}
+                    />
+                  );
+                }
+                const isLocked = !!user.lockedUntil && user.lockedUntil > new Date();
+                return (
                   <tr key={user.id} className="border-b border-neutral-100">
                     <td className="py-2 pr-2">{user.name}</td>
                     <td className="py-2 pr-2 text-neutral-600">{user.email}</td>
                     <td className="py-2 pr-2">{user.role === "ADMIN" ? "Admin" : "Member"}</td>
                     <td className="py-2 pr-2">
-                      <span className="text-green-700">Active</span>
+                      {isLocked ? (
+                        <span className="text-red-700">Locked out</span>
+                      ) : (
+                        <span className="text-green-700">Active</span>
+                      )}
                     </td>
-                    <td className="py-2 pr-2"></td>
+                    <td className="py-2 pr-2">
+                      {isLocked && (
+                        <form action={unlockUser.bind(null, user.id)}>
+                          <button type="submit" className="text-orange-700 underline hover:no-underline">
+                            Unlock
+                          </button>
+                        </form>
+                      )}
+                    </td>
                   </tr>
-                ) : (
-                  <PendingInviteRow
-                    key={user.id}
-                    user={{ id: user.id, email: user.email, name: user.name, role: user.role }}
-                  />
-                ),
-              )}
+                );
+              })}
             </tbody>
           </table>
         )}

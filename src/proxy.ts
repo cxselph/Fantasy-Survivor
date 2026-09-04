@@ -3,19 +3,23 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { SESSION_COOKIE } from "@/lib/auth";
 
-async function readRole(token: string | undefined): Promise<"guest" | "admin" | null> {
+// Fast, DB-free coarse gate: verifies the JWT signature and its role claim only. The
+// authoritative check (does this user still exist, is it locked, has sessionVersion changed)
+// happens in getSession() at the page/action level - this just keeps fully unauthenticated
+// visitors out and pre-filters /admin/* before a request even reaches a page.
+async function readRole(token: string | undefined): Promise<"admin" | "member" | null> {
   if (!token) return null;
   const secret = process.env.SESSION_SECRET;
   if (!secret) return null;
   try {
     const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
-    return payload.role === "admin" ? "admin" : payload.role === "guest" ? "guest" : null;
+    return payload.role === "admin" ? "admin" : payload.role === "member" ? "member" : null;
   } catch {
     return null;
   }
 }
 
-const PUBLIC_PATHS = ["/login", "/accept-invite"];
+const PUBLIC_PATHS = ["/login", "/setup", "/accept-invite"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
