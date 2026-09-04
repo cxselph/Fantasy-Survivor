@@ -116,6 +116,88 @@ export async function unlockUser(userId: number) {
   revalidatePath("/admin/users");
 }
 
+// Active admins other than `excludingUserId` - used to stop an action from leaving the league
+// with zero admins able to log in and manage it.
+async function countActiveAdmins(excludingUserId: number) {
+  return prisma.user.count({
+    where: { role: "ADMIN", passwordHash: { not: null }, disabledAt: null, id: { not: excludingUserId } },
+  });
+}
+
+export type UpdateUserState = { error?: string; success?: string };
+
+// Edits an already-active user's name/email/role. Unlike updateInvite, never touches the invite
+// token or resends anything - the account already exists.
+export async function updateUser(
+  _prevState: UpdateUserState | undefined,
+  formData: FormData,
+): Promise<UpdateUserState> {
+  await requireAdmin();
+
+  const userId = Number(formData.get("userId"));
+  const email = normalizeEmail(String(formData.get("email") || ""));
+  const name = String(formData.get("name") || "").trim();
+  const role = formData.get("role") === "ADMIN" ? "ADMIN" : "MEMBER";
+
+  if (!Number.isInteger(userId)) return { error: "Invalid user." };
+  if (!email || !email.includes("@")) return { error: "Enter a valid email address." };
+  if (!name) return { error: "Enter a name." };
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || !user.passwordHash) return { error: "User not found." };
+
+  if (user.role === "ADMIN" && role === "MEMBER" && (await countActiveAdmins(userId)) === 0) {
+    return { error: "Can't remove the last admin." };
+  }
+
+  if (email !== user.email) {
+    const clash = await prisma.user.findUnique({ where: { email } });
+    if (clash && clash.id !== userId) {
+      return { error: `${email} is already in use by another account.` };
+    }
+  }
+
+  await prisma.user.update({ where: { id: userId }, data: { name, email, role } });
+  revalidatePath("/admin/users");
+  return { success: "Saved." };
+}
+
+// Disabling/deleting the last active admin, or your own account, is blocked here as a backstop,
+// but the Manage Users page already hides these actions in those cases so this shouldn't
+// normally be reachable - see the isSelf/isLastAdmin checks in admin/users/page.tsx.
+
+export async function disableUser(userId: number) {
+  const session = await requireAdmin();
+  if (userId === session.userId) return;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return;
+  if (user.role === "ADMIN" && (await countActiveAdmins(userId)) === 0) return;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { disabledAt: new Date(), sessionVersion: { increment: 1 } },
+  });
+  revalidatePath("/admin/users");
+}
+
+export async function enableUser(userId: number) {
+  await requireAdmin();
+  await prisma.user.update({ where: { id: userId }, data: { disabledAt: null } });
+  revalidatePath("/admin/users");
+}
+
+export async function deleteUser(userId: number) {
+  const session = await requireAdmin();
+  if (userId === session.userId) return;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return;
+  if (user.role === "ADMIN" && user.passwordHash && (await countActiveAdmins(userId)) === 0) return;
+
+  // FantasyTeam.userId is onDelete: SetNull - any drafted team becomes unclaimed, not deleted.
+  await prisma.user.delete({ where: { id: userId } });
+  revalidatePath("/admin/users");
+}
+
 export type AcceptInviteState = { error?: string };
 
 export async function acceptInvite(

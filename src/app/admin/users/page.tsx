@@ -1,11 +1,10 @@
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { unlockUser } from "@/lib/actions/users";
 import { InviteForm } from "./invite-form";
-import { PendingInviteRow } from "./pending-invite-row";
+import { UserRow, USER_ROW_GRID } from "./user-row";
 
 export default async function AdminUsersPage() {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const [users, unclaimedTeams] = await Promise.all([
     prisma.user.findMany({ orderBy: [{ role: "asc" }, { name: "asc" }] }),
@@ -15,6 +14,8 @@ export default async function AdminUsersPage() {
       orderBy: [{ season: { number: "desc" } }, { ownerName: "asc" }],
     }),
   ]);
+
+  const activeAdminCount = users.filter((u) => u.role === "ADMIN" && u.passwordHash && !u.disabledAt).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -36,53 +37,30 @@ export default async function AdminUsersPage() {
         {users.length === 0 ? (
           <p className="text-sm text-neutral-500">No users yet.</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-neutral-200 text-left text-neutral-500">
-                <th className="py-2 pr-2">Name</th>
-                <th className="py-2 pr-2">Email</th>
-                <th className="py-2 pr-2">Role</th>
-                <th className="py-2 pr-2">Status</th>
-                <th className="py-2 pr-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => {
-                if (!user.passwordHash) {
-                  return (
-                    <PendingInviteRow
-                      key={user.id}
-                      user={{ id: user.id, email: user.email, name: user.name, role: user.role }}
-                    />
-                  );
-                }
-                const isLocked = !!user.lockedUntil && user.lockedUntil > new Date();
-                return (
-                  <tr key={user.id} className="border-b border-neutral-100">
-                    <td className="py-2 pr-2">{user.name}</td>
-                    <td className="py-2 pr-2 text-neutral-600">{user.email}</td>
-                    <td className="py-2 pr-2">{user.role === "ADMIN" ? "Admin" : "Member"}</td>
-                    <td className="py-2 pr-2">
-                      {isLocked ? (
-                        <span className="text-red-700">Locked out</span>
-                      ) : (
-                        <span className="text-green-700">Active</span>
-                      )}
-                    </td>
-                    <td className="py-2 pr-2">
-                      {isLocked && (
-                        <form action={unlockUser.bind(null, user.id)}>
-                          <button type="submit" className="text-orange-700 underline hover:no-underline">
-                            Unlock
-                          </button>
-                        </form>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div>
+            <div className={`${USER_ROW_GRID} px-0 pb-2 text-left text-sm text-neutral-500`}>
+              <span>Name</span>
+              <span>Email</span>
+              <span>Role</span>
+              <span>Status</span>
+              <span>Actions</span>
+            </div>
+            {users.map((user) => {
+              const status = !user.passwordHash ? "pending" : user.disabledAt ? "disabled" : "active";
+              const isLocked = !!user.lockedUntil && user.lockedUntil > new Date();
+              const isLastAdmin = user.role === "ADMIN" && status === "active" && activeAdminCount <= 1;
+              return (
+                <UserRow
+                  key={user.id}
+                  user={{ id: user.id, name: user.name, email: user.email, role: user.role }}
+                  status={status}
+                  isSelf={user.id === session.userId}
+                  isLastAdmin={isLastAdmin}
+                  isLocked={isLocked}
+                />
+              );
+            })}
+          </div>
         )}
       </section>
     </div>
