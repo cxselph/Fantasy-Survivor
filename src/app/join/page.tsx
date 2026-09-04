@@ -1,4 +1,4 @@
-import { getActiveSeason } from "@/lib/scoring";
+import { getActiveSeason, getStandings } from "@/lib/scoring";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { unlockTeam } from "@/lib/actions/team";
@@ -45,6 +45,17 @@ export default async function JoinPage() {
   // editable form their bypass would otherwise leave them stuck with.
   const showReveal = (seasonLocked || teamLocked) && pickedCastaways.length > 0;
 
+  let pointsByCastawayId: Record<number, number> = {};
+  let totalPoints = 0;
+  if (showReveal && existingTeam) {
+    const standings = await getStandings(season.id);
+    const standing = standings.find((s) => s.teamId === existingTeam.id);
+    if (standing) {
+      totalPoints = standing.total;
+      pointsByCastawayId = Object.fromEntries(standing.picks.map((p) => [p.castawayId, p.contribution]));
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="rounded-2xl bg-white/90 p-5 shadow-lg backdrop-blur-sm">
@@ -77,7 +88,14 @@ export default async function JoinPage() {
         )}
       </div>
 
-      {showReveal && <TeamRoster castaways={pickedCastaways} powerPlayerId={powerPlayerId} />}
+      {showReveal && (
+        <TeamRoster
+          castaways={pickedCastaways}
+          powerPlayerId={powerPlayerId}
+          pointsByCastawayId={pointsByCastawayId}
+          totalPoints={totalPoints}
+        />
+      )}
 
       {isLockedForParticipant && pickedCastaways.length === 0 && (
         <p className="rounded-2xl bg-white/90 p-5 text-sm text-neutral-500 shadow-lg backdrop-blur-sm">
