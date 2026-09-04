@@ -132,6 +132,26 @@ export async function deleteScoreEvent(formData: FormData) {
   refresh();
 }
 
+/**
+ * Wipes all scoring history for the active season: every score event, and every
+ * castaway's elimination/placement status (which are derived from that scoring).
+ * Leaves the cast list, tribes, and drafted teams untouched.
+ */
+export async function resetScoring() {
+  await requireAdmin();
+  const season = await getActiveSeason();
+
+  await prisma.$transaction([
+    prisma.scoreEvent.deleteMany({ where: { seasonId: season.id } }),
+    prisma.castaway.updateMany({
+      where: { seasonId: season.id },
+      data: { isEliminated: false, eliminatedWeek: null, placement: null },
+    }),
+  ]);
+
+  refresh();
+}
+
 export async function updateSeasonSettings(
   _prevState: FormState | undefined,
   formData: FormData,

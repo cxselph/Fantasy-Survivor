@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { getActiveSeason } from "@/lib/scoring";
 import { SeasonSettingsForm } from "./season-settings-form";
+import { ResetScoringButton } from "./reset-scoring-button";
 
 export default async function AdminPage() {
   await requireAdmin();
@@ -35,6 +36,15 @@ export default async function AdminPage() {
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
         <h2 className="mb-3 font-semibold">Season Settings</h2>
         <SeasonSettingsForm season={season} />
+      </section>
+
+      <section className="rounded-lg border border-red-200 bg-red-50/40 p-4">
+        <h2 className="mb-1 font-semibold text-red-800">Danger Zone</h2>
+        <p className="mb-3 text-sm text-red-700">
+          For testing before the season starts (or fixing a bad batch of entries). This only
+          affects Season {season.number} — other seasons are untouched.
+        </p>
+        <ResetScoringButton seasonLabel={`Season ${season.number}`} />
       </section>
     </div>
   );
