@@ -1,5 +1,7 @@
 import { getAllSeasons, getSeasonForView, getStandings } from "@/lib/scoring";
+import { getSession } from "@/lib/auth";
 import { SeasonSwitcher } from "@/components/season-switcher";
+import { NoSeasonYet } from "@/components/no-season-yet";
 
 const RANK_MEDALS: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
@@ -9,10 +11,18 @@ export default async function DashboardPage({
   searchParams: Promise<{ season?: string }>;
 }) {
   const { season: seasonParam } = await searchParams;
-  const [season, allSeasons] = await Promise.all([
-    getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
-    getAllSeasons(),
-  ]);
+
+  let season, allSeasons;
+  try {
+    [season, allSeasons] = await Promise.all([
+      getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
+      getAllSeasons(),
+    ]);
+  } catch {
+    const session = await getSession();
+    return <NoSeasonYet isAdmin={session?.role === "admin"} />;
+  }
+
   const standings = await getStandings(season.id);
 
   return (

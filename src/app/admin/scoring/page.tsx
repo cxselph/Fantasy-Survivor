@@ -5,6 +5,7 @@ import { ScoreEventType } from "@/generated/prisma/enums";
 import { WeeklyForm, type WeeklyEntry } from "./weekly-form";
 import { CustomAdjustmentForm, DeleteEventButton } from "./custom-form";
 import { BackToAdmin } from "@/components/back-to-admin";
+import { NoSeasonYet } from "@/components/no-season-yet";
 
 export default async function AdminScoringPage({
   searchParams,
@@ -13,7 +14,13 @@ export default async function AdminScoringPage({
 }) {
   await requireAdmin();
   const { week: weekParam } = await searchParams;
-  const season = await getActiveSeason();
+
+  let season;
+  try {
+    season = await getActiveSeason();
+  } catch {
+    return <NoSeasonYet isAdmin />;
+  }
 
   const castaways = await prisma.castaway.findMany({
     where: { seasonId: season.id },
