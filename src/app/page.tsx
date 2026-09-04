@@ -1,28 +1,48 @@
-import { getActiveSeason, getStandings } from "@/lib/scoring";
+import { getAllSeasons, getSeasonForView, getStandings } from "@/lib/scoring";
+import { SeasonSwitcher } from "@/components/season-switcher";
 
-export default async function DashboardPage() {
-  const season = await getActiveSeason();
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
+  const { season: seasonParam } = await searchParams;
+  const [season, allSeasons] = await Promise.all([
+    getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
+    getAllSeasons(),
+  ]);
   const standings = await getStandings(season.id);
 
   return (
     <div className="flex flex-col gap-6">
+      <SeasonSwitcher seasons={allSeasons} currentNumber={season.number} basePath="/" />
+
       <div>
         <h1 className="text-2xl font-bold">
           Season {season.number}: {season.name}
         </h1>
         <p className="text-sm text-neutral-500">
-          {season.draftLocked ? "Draft locked — picks are final." : "Draft open — teams can still be changed."}
+          {season.isActive
+            ? season.draftLocked
+              ? "Draft locked — picks are final."
+              : "Draft open — teams can still be changed."
+            : "Past season — viewing final results."}
           {season.mergeWeek != null && ` · Merge at week ${season.mergeWeek}.`}
         </p>
       </div>
 
       {standings.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center text-neutral-500">
-          No teams yet.{" "}
-          <a href="/join" className="font-medium text-orange-600 underline">
-            Draft your team
-          </a>{" "}
-          to get on the board.
+          No teams yet.
+          {season.isActive && (
+            <>
+              {" "}
+              <a href="/join" className="font-medium text-orange-600 underline">
+                Draft your team
+              </a>{" "}
+              to get on the board.
+            </>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-4">

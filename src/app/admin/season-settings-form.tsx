@@ -35,11 +35,26 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
           />
         </label>
 
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          Season length (weeks)
+          <input
+            type="number"
+            name="totalWeeks"
+            min={1}
+            defaultValue={season.totalWeeks}
+            className="w-28 rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          />
+        </label>
+
         <label className="flex items-center gap-2 pb-2 text-sm font-medium">
           <input type="checkbox" name="draftLocked" defaultChecked={season.draftLocked} />
           Lock the draft (no more team changes by participants)
         </label>
       </div>
+      <p className="-mt-2 text-xs text-neutral-400">
+        Weekly Scoring won&apos;t let you go past this week count. Survivor is usually 13 weeks -
+        raise this if a season runs long.
+      </p>
 
       <div className="flex flex-col gap-1 border-t border-neutral-100 pt-3">
         <label className="flex flex-col gap-0.5 text-sm font-medium">

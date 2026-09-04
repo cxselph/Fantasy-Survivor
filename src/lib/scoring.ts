@@ -12,6 +12,22 @@ export async function getActiveSeason() {
   return season;
 }
 
+export async function getAllSeasons() {
+  return prisma.season.findMany({ orderBy: { number: "desc" } });
+}
+
+/**
+ * Resolves a season for read-only viewing (Dashboard, Cast, Rules): a specific
+ * `seasonNumber` if given and it exists, otherwise the active season.
+ */
+export async function getSeasonForView(seasonNumber?: number) {
+  if (seasonNumber != null) {
+    const season = await prisma.season.findUnique({ where: { number: seasonNumber } });
+    if (season) return season;
+  }
+  return getActiveSeason();
+}
+
 export function getSiteTitle(season: Season) {
   return season.siteTitle?.trim() || `🔥 Survivor ${season.number} League`;
 }

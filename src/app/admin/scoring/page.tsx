@@ -25,7 +25,7 @@ export default async function AdminScoringPage({
       where: { seasonId: season.id, type: { not: ScoreEventType.CUSTOM } },
       _max: { week: true },
     });
-    week = (latest._max.week ?? 0) + 1;
+    week = Math.min((latest._max.week ?? 0) + 1, season.totalWeeks);
   }
 
   const weekEvents = await prisma.scoreEvent.findMany({
@@ -59,12 +59,13 @@ export default async function AdminScoringPage({
       <div>
         <h1 className="text-2xl font-bold">Weekly Scoring</h1>
         <p className="text-sm text-neutral-500">
-          Season {season.number} · {season.mergeWeek ? `Merge at week ${season.mergeWeek}` : "Merge week not set yet"}
+          Season {season.number} · {season.totalWeeks} weeks ·{" "}
+          {season.mergeWeek ? `Merge at week ${season.mergeWeek}` : "Merge week not set yet"}
         </p>
       </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
-        <WeeklyForm key={week} week={week} castaways={castaways} entries={entries} />
+        <WeeklyForm key={week} week={week} totalWeeks={season.totalWeeks} castaways={castaways} entries={entries} />
       </section>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">

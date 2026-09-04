@@ -30,6 +30,12 @@ export async function saveWeeklyResults(
   }
 
   const season = await getActiveSeason();
+  if (week > season.totalWeeks) {
+    return {
+      error: `Week ${week} is past this season's length (${season.totalWeeks} weeks). Raise it in Season Settings if this season is running long.`,
+    };
+  }
+
   const castaways = await prisma.castaway.findMany({ where: { seasonId: season.id } });
 
   const challengePoints = pointsForChallenge(season, week);
@@ -135,8 +141,14 @@ export async function updateSeasonSettings(
   const draftLocked = formData.get("draftLocked") === "on";
   const mergeWeekRaw = String(formData.get("mergeWeek") || "").trim();
   const mergeWeek = mergeWeekRaw ? Number(mergeWeekRaw) : null;
+  const totalWeeksRaw = String(formData.get("totalWeeks") || "").trim();
+  const totalWeeks = totalWeeksRaw ? Number(totalWeeksRaw) : 13;
   const removeBanner = formData.get("removeBanner") === "on";
   const siteTitle = String(formData.get("siteTitle") || "").trim();
+
+  if (!Number.isInteger(totalWeeks) || totalWeeks < 1) {
+    return { error: "Season length must be a whole number of weeks." };
+  }
 
   const { url: bannerResolved, error: bannerError } = await resolveUploadedImage(
     formData,
@@ -145,7 +157,7 @@ export async function updateSeasonSettings(
   );
   if (bannerError) return { error: bannerError };
 
-  const data: Prisma.SeasonUpdateInput = { draftLocked, mergeWeek, siteTitle: siteTitle || null };
+  const data: Prisma.SeasonUpdateInput = { draftLocked, mergeWeek, totalWeeks, siteTitle: siteTitle || null };
   if (removeBanner) {
     data.bannerUrl = null;
   } else if (bannerResolved) {

@@ -18,6 +18,7 @@ model Season {
   isActive    Boolean  @default(true)
   draftLocked Boolean  @default(false) // once true, participants can no longer change their picks
   mergeWeek   Int? // week number merge happened; null until admin sets it
+  totalWeeks  Int      @default(13) // caps the Weekly Scoring week field; admin can raise it if a season runs long
   bannerUrl   String? // shown on the login page
   siteTitle   String? // shown on the login page and the nav bar once logged in; falls back to a default if unset
   createdAt   DateTime @default(now())

@@ -13,10 +13,12 @@ export type WeeklyEntry = {
 
 export function WeeklyForm({
   week,
+  totalWeeks,
   castaways,
   entries,
 }: {
   week: number;
+  totalWeeks: number;
   castaways: Castaway[];
   entries: Map<number, WeeklyEntry>;
 }) {
@@ -25,7 +27,7 @@ export function WeeklyForm({
   const [weekInput, setWeekInput] = useState(week.toString());
 
   function goToWeek(nextWeek: number) {
-    if (!Number.isInteger(nextWeek) || nextWeek < 1) return;
+    if (!Number.isInteger(nextWeek) || nextWeek < 1 || nextWeek > totalWeeks) return;
     router.push(`/admin/scoring?week=${nextWeek}`);
   }
 
@@ -38,6 +40,7 @@ export function WeeklyForm({
             type="number"
             name="week"
             min={1}
+            max={totalWeeks}
             value={weekInput}
             required
             onChange={(e) => setWeekInput(e.target.value)}
@@ -62,12 +65,13 @@ export function WeeklyForm({
         <button
           type="button"
           onClick={() => goToWeek(week + 1)}
-          className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50"
+          disabled={week >= totalWeeks}
+          className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 disabled:opacity-40"
         >
           Next week →
         </button>
         <span className="pb-2 text-xs text-neutral-400">
-          Jump to any week to view or correct what was entered.
+          Week {week} of {totalWeeks}. Jump to any week to view or correct what was entered.
         </span>
       </div>
 

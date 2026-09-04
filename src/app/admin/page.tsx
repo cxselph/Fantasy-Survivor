@@ -24,6 +24,12 @@ export default async function AdminPage() {
         >
           Enter Weekly Scoring →
         </Link>
+        <Link
+          href="/admin/seasons"
+          className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-orange-300"
+        >
+          Manage Seasons →
+        </Link>
       </div>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">

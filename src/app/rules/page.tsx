@@ -1,7 +1,16 @@
-import { getActiveSeason } from "@/lib/scoring";
+import { getAllSeasons, getSeasonForView } from "@/lib/scoring";
+import { SeasonSwitcher } from "@/components/season-switcher";
 
-export default async function RulesPage() {
-  const season = await getActiveSeason();
+export default async function RulesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
+  const { season: seasonParam } = await searchParams;
+  const [season, allSeasons] = await Promise.all([
+    getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
+    getAllSeasons(),
+  ]);
 
   const rows = [
     { label: "Won a challenge (pre-merge)", value: season.challengeWinPreMerge },
@@ -15,7 +24,11 @@ export default async function RulesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">League Rules</h1>
+      <SeasonSwitcher seasons={allSeasons} currentNumber={season.number} basePath="/rules" />
+
+      <h1 className="text-2xl font-bold">
+        League Rules {allSeasons.length > 1 && `— Season ${season.number}`}
+      </h1>
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
         <h2 className="mb-2 font-semibold">Scoring</h2>

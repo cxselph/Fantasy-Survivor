@@ -1,11 +1,20 @@
 import { getSession } from "@/lib/auth";
-import { getActiveSeason } from "@/lib/scoring";
+import { getAllSeasons, getSeasonForView } from "@/lib/scoring";
 import { prisma } from "@/lib/prisma";
+import { SeasonSwitcher } from "@/components/season-switcher";
 import { CastawayCard } from "./castaway-card";
 
-export default async function CastPage() {
+export default async function CastPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
+  const { season: seasonParam } = await searchParams;
   const session = await getSession();
-  const season = await getActiveSeason();
+  const [season, allSeasons] = await Promise.all([
+    getSeasonForView(seasonParam ? Number(seasonParam) : undefined),
+    getAllSeasons(),
+  ]);
 
   const [tribes, castaways] = await Promise.all([
     prisma.tribe.findMany({ where: { seasonId: season.id }, orderBy: { name: "asc" } }),
@@ -24,10 +33,13 @@ export default async function CastPage() {
     { tribe: null, castaways: castaways.filter((c) => c.tribeId === null) },
   ].filter((group) => group.castaways.length > 0);
 
-  const isAdmin = session?.role === "admin";
+  // Past seasons are frozen - only the active season can be edited.
+  const isAdmin = session?.role === "admin" && season.isActive;
 
   return (
     <div className="flex flex-col gap-8">
+      <SeasonSwitcher seasons={allSeasons} currentNumber={season.number} basePath="/cast" />
+
       <div>
         <h1 className="text-2xl font-bold">The Cast</h1>
         <p className="text-sm text-neutral-500">
