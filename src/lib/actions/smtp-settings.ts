@@ -3,11 +3,21 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { encrypt } from "@/lib/secret-cipher";
+import { encrypt, decrypt } from "@/lib/secret-cipher";
 import { sendEmail } from "@/lib/email/send-email";
 
 export async function getSmtpSettingsForDisplay() {
   const settings = await prisma.smtpSettings.findUnique({ where: { id: 1 } });
+
+  let passwordNeedsResave = false;
+  if (settings?.passwordCiphertext && settings.passwordIv && settings.passwordAuthTag) {
+    try {
+      decrypt({ data: settings.passwordCiphertext, iv: settings.passwordIv, authTag: settings.passwordAuthTag });
+    } catch {
+      passwordNeedsResave = true;
+    }
+  }
+
   return {
     host: settings?.host ?? "",
     port: settings?.port ?? 587,
@@ -15,6 +25,7 @@ export async function getSmtpSettingsForDisplay() {
     fromEmail: settings?.fromEmail ?? "",
     fromName: settings?.fromName ?? "Fantasy Survivor",
     hasPassword: !!settings?.passwordCiphertext,
+    passwordNeedsResave,
   };
 }
 
