@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getAllSeasons, getSeasonForView, getStandings } from "@/lib/scoring";
 import { getSession } from "@/lib/auth";
 import { SeasonSwitcher } from "@/components/season-switcher";
@@ -8,9 +9,11 @@ const RANK_MEDALS: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ season?: string }>;
+  searchParams: Promise<{ season?: string; reveal?: string }>;
 }) {
-  const { season: seasonParam } = await searchParams;
+  const { season: seasonParam, reveal } = await searchParams;
+  const session = await getSession();
+  const isAdmin = session?.role === "admin";
 
   let season, allSeasons;
   try {
@@ -19,11 +22,20 @@ export default async function DashboardPage({
       getAllSeasons(),
     ]);
   } catch {
-    const session = await getSession();
-    return <NoSeasonYet isAdmin={session?.role === "admin"} />;
+    return <NoSeasonYet isAdmin={isAdmin} />;
   }
 
   const standings = await getStandings(season.id);
+
+  // Hiding only ever applies pre-lock - once the draft locks, that's the reveal moment and
+  // everyone sees everything. An admin can still temporarily override, but only for their own
+  // view (the query param below), never a site-wide switch - everyone else stays hidden.
+  const shouldHide = season.hideTeamsUntilLocked && !season.draftLocked;
+  const overrideActive = isAdmin && reveal === "1";
+
+  const seasonQuery = seasonParam ? `season=${seasonParam}` : "";
+  const revealHref = `/?${[seasonQuery, "reveal=1"].filter(Boolean).join("&")}`;
+  const hideAgainHref = seasonQuery ? `/?${seasonQuery}` : "/";
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,6 +55,26 @@ export default async function DashboardPage({
         </p>
       </div>
 
+      {isAdmin && shouldHide && (
+        <div className="rounded-2xl bg-white/90 px-4 py-3 text-sm shadow-lg backdrop-blur-sm">
+          {overrideActive ? (
+            <p className="text-neutral-600">
+              👁️ Viewing with admin override — picks are still hidden for everyone else.{" "}
+              <Link href={hideAgainHref} className="font-medium text-accent-700 underline">
+                Hide again
+              </Link>
+            </p>
+          ) : (
+            <p className="text-neutral-600">
+              🔒 Other teams&apos; picks are hidden until the draft locks.{" "}
+              <Link href={revealHref} className="font-medium text-accent-700 underline">
+                Reveal all picks (admin override)
+              </Link>
+            </p>
+          )}
+        </div>
+      )}
+
       {standings.length === 0 ? (
         <div className="rounded-2xl border-2 border-dashed border-white/50 bg-white/80 p-8 text-center text-neutral-500 backdrop-blur-sm">
           No teams yet.
@@ -61,6 +93,8 @@ export default async function DashboardPage({
           {standings.map((team, index) => {
             const rank = index + 1;
             const medal = RANK_MEDALS[rank];
+            const isMine = session != null && team.userId === session.userId;
+            const picksHidden = shouldHide && !isMine && !overrideActive;
             return (
               <div
                 key={team.teamId}
@@ -81,27 +115,31 @@ export default async function DashboardPage({
                   </div>
                   <span className="text-2xl font-bold text-accent-600">{team.total}</span>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {team.picks.map((pick) => (
-                    <div
-                      key={pick.castawayId}
-                      className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm ${
-                        pick.isEliminated
-                          ? "border-neutral-200 bg-neutral-50 text-neutral-400 line-through"
-                          : "border-neutral-200 bg-neutral-50 text-neutral-700"
-                      }`}
-                    >
-                      <span>{pick.name}</span>
-                      {pick.isPowerPlayer && (
-                        <span className="rounded-full bg-accent-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
-                          PP
-                        </span>
-                      )}
-                      <span className="font-mono text-xs text-neutral-500">{pick.contribution}</span>
-                      {pick.placement === 1 && <span title="Sole Survivor">🏆</span>}
-                    </div>
-                  ))}
-                </div>
+                {picksHidden ? (
+                  <p className="mt-3 text-sm text-neutral-400">🔒 Picks hidden until the draft locks.</p>
+                ) : (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {team.picks.map((pick) => (
+                      <div
+                        key={pick.castawayId}
+                        className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm ${
+                          pick.isEliminated
+                            ? "border-neutral-200 bg-neutral-50 text-neutral-400 line-through"
+                            : "border-neutral-200 bg-neutral-50 text-neutral-700"
+                        }`}
+                      >
+                        <span>{pick.name}</span>
+                        {pick.isPowerPlayer && (
+                          <span className="rounded-full bg-accent-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+                            PP
+                          </span>
+                        )}
+                        <span className="font-mono text-xs text-neutral-500">{pick.contribution}</span>
+                        {pick.placement === 1 && <span title="Sole Survivor">🏆</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}

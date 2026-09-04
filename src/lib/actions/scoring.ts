@@ -162,6 +162,7 @@ export async function updateSeasonSettings(
   await requireAdmin();
   const seasonId = Number(formData.get("seasonId"));
   const draftLocked = formData.get("draftLocked") === "on";
+  const hideTeamsUntilLocked = formData.get("hideTeamsUntilLocked") === "on";
   const mergeWeekRaw = String(formData.get("mergeWeek") || "").trim();
   const mergeWeek = mergeWeekRaw ? Number(mergeWeekRaw) : null;
   const totalWeeksRaw = String(formData.get("totalWeeks") || "").trim();
@@ -199,6 +200,7 @@ export async function updateSeasonSettings(
 
   const data: Prisma.SeasonUpdateInput = {
     draftLocked,
+    hideTeamsUntilLocked,
     mergeWeek,
     totalWeeks,
     siteTitle: siteTitle || null,
@@ -227,6 +229,7 @@ export async function updateSeasonSettings(
   revalidatePath("/login");
   revalidatePath("/admin");
   revalidatePath("/admin/scoring");
+  revalidatePath("/admin/teams");
 
   return { success: true };
 }

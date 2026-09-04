@@ -20,9 +20,18 @@ export default async function AdminTeamsPage() {
     orderBy: { ownerName: "asc" },
   });
 
+  const shouldHide = season.hideTeamsUntilLocked && !season.draftLocked;
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold">Manage Teams — Season {season.number}</h1>
+
+      {shouldHide && (
+        <p className="rounded-md bg-yellow-50 px-3 py-2 text-sm text-yellow-800">
+          🔒 Picks are hidden until the draft locks — open a team below and use the override to
+          view or edit its picks anyway.
+        </p>
+      )}
 
       <section className="rounded-lg border border-neutral-200 bg-white p-4">
         {teams.length === 0 ? (
