@@ -14,11 +14,20 @@ async function getSmtpConfig() {
   if (!settings?.host || !settings.username || !settings.passwordCiphertext || !settings.passwordIv || !settings.passwordAuthTag) {
     return null;
   }
-  const password = decrypt({
-    data: settings.passwordCiphertext,
-    iv: settings.passwordIv,
-    authTag: settings.passwordAuthTag,
-  });
+  let password: string;
+  try {
+    password = decrypt({
+      data: settings.passwordCiphertext,
+      iv: settings.passwordIv,
+      authTag: settings.passwordAuthTag,
+    });
+  } catch {
+    // Saved password can't be decrypted with the current SETTINGS_ENCRYPTION_KEY (e.g. the key
+    // changed since it was saved) - treat as unconfigured rather than throwing. Admin -> Email
+    // Settings surfaces this so it can be re-saved, see getSmtpSettingsForDisplay().
+    console.error("[email] Saved SMTP password could not be decrypted - re-save it in Admin -> Email Settings.");
+    return null;
+  }
   return {
     host: settings.host,
     port: settings.port || 587,
