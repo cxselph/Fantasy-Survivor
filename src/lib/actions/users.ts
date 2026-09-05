@@ -6,11 +6,34 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin, createUserSession } from "@/lib/auth";
 import { hashPassword } from "@/lib/password";
 import { generateToken, hashToken, INVITE_TOKEN_TTL_MS } from "@/lib/tokens";
-import { sendEmail } from "@/lib/email/send-email";
+import { sendEmail, type SendEmailResult } from "@/lib/email/send-email";
 import { inviteEmail } from "@/lib/email/templates";
 import { normalizeEmail, appUrl } from "@/lib/users";
 
 export type InviteUserState = { error?: string; success?: string };
+
+// Persists the outcome of an invite email send onto the User row (surfaced as a badge in Manage
+// Users) and turns it into the form state message - a failed/skipped send is still reported to
+// the admin even though the invite itself (token + DB row) was already saved either way.
+async function recordInviteEmailResult(userId: number, email: string, verb: string, result: SendEmailResult) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      lastInviteEmailStatus:
+        result.status === "sent" ? "SENT" : result.status === "failed" ? "FAILED" : "NOT_CONFIGURED",
+      lastInviteEmailError: result.status === "failed" ? result.error : null,
+      lastInviteEmailAt: new Date(),
+    },
+  });
+
+  if (result.status === "sent") return { success: `Invite ${verb} to ${email}.` };
+  if (result.status === "not_configured") {
+    return {
+      error: `Invite saved for ${email}, but SMTP isn't configured yet — no email was sent. Set it up in Admin → Email Settings.`,
+    };
+  }
+  return { error: `Invite saved for ${email}, but the email failed to send: ${result.error}` };
+}
 
 export async function inviteUser(
   _prevState: InviteUserState | undefined,
@@ -54,10 +77,10 @@ export async function inviteUser(
   }
 
   const acceptUrl = `${appUrl()}/accept-invite?token=${rawToken}`;
-  await sendEmail({ to: email, ...inviteEmail({ name, acceptUrl }) });
+  const result = await sendEmail({ to: email, ...inviteEmail({ name, acceptUrl }) });
 
   revalidatePath("/admin/users");
-  return { success: `Invite sent to ${email}.` };
+  return recordInviteEmailResult(user.id, email, "sent", result);
 }
 
 export type UpdateInviteState = { error?: string; success?: string };
@@ -104,10 +127,10 @@ export async function updateInvite(
   });
 
   const acceptUrl = `${appUrl()}/accept-invite?token=${rawToken}`;
-  await sendEmail({ to: email, ...inviteEmail({ name, acceptUrl }) });
+  const result = await sendEmail({ to: email, ...inviteEmail({ name, acceptUrl }) });
 
   revalidatePath("/admin/users");
-  return { success: `Invite updated and resent to ${email}.` };
+  return recordInviteEmailResult(userId, email, "updated and resent", result);
 }
 
 export type SetPasswordState = { error?: string; success?: string };

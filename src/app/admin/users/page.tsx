@@ -60,7 +60,15 @@ export default async function AdminUsersPage() {
                 return (
                   <UserRow
                     key={user.id}
-                    user={{ id: user.id, name: user.name, email: user.email, role: user.role }}
+                    user={{
+                      id: user.id,
+                      name: user.name,
+                      email: user.email,
+                      role: user.role,
+                      lastInviteEmailStatus: user.lastInviteEmailStatus,
+                      lastInviteEmailError: user.lastInviteEmailError,
+                      lastInviteEmailAt: user.lastInviteEmailAt,
+                    }}
                     status={status}
                     isSelf={user.id === session.userId}
                     isLastAdmin={isLastAdmin}

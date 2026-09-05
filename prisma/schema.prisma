@@ -101,6 +101,12 @@ enum UserRole {
   MEMBER
 }
 
+enum InviteEmailStatus {
+  SENT
+  FAILED
+  NOT_CONFIGURED // SMTP wasn't set up in Admin -> Email Settings when this send was attempted
+}
+
 // A real per-person account. Replaces the old shared-password login. Invites and password
 // resets are just states of a User row (passwordHash null = invited, not yet accepted) rather
 // than separate tables, matching how Season inlines its own config.
@@ -115,6 +121,12 @@ model User {
   invitedBy            Int?
   inviteTokenHash      String?   @unique // sha256 of the raw token emailed out; raw token is never stored
   inviteTokenExpiresAt DateTime?
+
+  // Outcome of the most recent invite email send attempt (initial invite or resend), so an admin
+  // can tell a saved invite from one that actually reached the recipient's inbox.
+  lastInviteEmailStatus InviteEmailStatus?
+  lastInviteEmailError  String?
+  lastInviteEmailAt     DateTime?
 
   resetTokenHash      String?   @unique
   resetTokenExpiresAt DateTime?

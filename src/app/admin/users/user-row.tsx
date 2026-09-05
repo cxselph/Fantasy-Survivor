@@ -24,7 +24,35 @@ type UserRowUser = {
   name: string;
   email: string;
   role: "ADMIN" | "MEMBER";
+  lastInviteEmailStatus: "SENT" | "FAILED" | "NOT_CONFIGURED" | null;
+  lastInviteEmailError: string | null;
+  lastInviteEmailAt: Date | null;
 };
+
+function InviteEmailBadge({ user }: { user: UserRowUser }) {
+  if (!user.lastInviteEmailStatus) return null;
+  const when = user.lastInviteEmailAt?.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  if (user.lastInviteEmailStatus === "SENT") {
+    return <span className="text-xs text-green-700">✓ Emailed {when}</span>;
+  }
+  if (user.lastInviteEmailStatus === "NOT_CONFIGURED") {
+    return (
+      <span className="text-xs text-yellow-700" title="Set up SMTP in Admin → Email Settings">
+        ⚠ SMTP not configured ({when})
+      </span>
+    );
+  }
+  return (
+    <span className="text-xs text-red-600" title={user.lastInviteEmailError ?? undefined}>
+      ✗ Email failed ({when})
+    </span>
+  );
+}
 
 export function UserRow({
   user,
@@ -94,6 +122,7 @@ export function UserRow({
         {status === "active" && <span className="font-medium text-green-700">Active</span>}
         {status === "disabled" && <span className="font-medium text-neutral-500">Disabled</span>}
         {isLocked && <span className="font-medium text-red-700">🔒 Locked out</span>}
+        {isPending && <InviteEmailBadge user={user} />}
         {state?.error && <span className="text-xs text-red-600">{state.error}</span>}
         {state?.success && <span className="text-xs text-green-700">{state.success}</span>}
       </div>
