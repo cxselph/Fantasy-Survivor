@@ -18,7 +18,7 @@ export default async function AdminPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold">Admin Dashboard</h1>
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Link
           href="/admin/cast"
           className="rounded-md border border-neutral-200 bg-white px-4 py-3 text-sm font-medium hover:border-accent-300"

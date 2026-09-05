@@ -17,7 +17,7 @@ import { DeleteUserButton } from "./delete-user-button";
 // shows) line up. Set via inline style rather than a Tailwind arbitrary-value class - a
 // grid-template-columns value with minmax(...)'s nested commas didn't reliably survive
 // Tailwind's arbitrary-value parsing (rendered as no styles at all, not an error).
-export const USER_ROW_GRID_TEMPLATE = "1fr 1.4fr 110px 150px 220px";
+export const USER_ROW_GRID_TEMPLATE = "1fr 1.4fr 90px 150px 220px";
 
 type UserRowUser = {
   id: number;

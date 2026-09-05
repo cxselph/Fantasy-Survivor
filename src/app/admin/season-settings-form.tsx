@@ -91,7 +91,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
             name="siteTitle"
             defaultValue={season.siteTitle ?? ""}
             placeholder={`🔥 Survivor ${season.number} League`}
-            className="max-w-md rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="w-full max-w-md rounded-md border border-neutral-300 px-3 py-2 text-sm"
           />
         </label>
         <p className="text-xs text-neutral-400">
@@ -125,12 +125,12 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 border-t border-neutral-100 pt-3">
+      <div className="flex flex-col gap-3 border-t border-neutral-100 pt-3 sm:flex-row sm:items-start">
         {preview && !removeBanner && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="" className="h-16 w-32 rounded object-cover" />
         )}
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="min-w-0 flex flex-1 flex-col gap-2">
           <span className="text-sm font-medium">Login page banner</span>
           <label className="flex flex-col gap-0.5 text-xs">
             Image URL
@@ -144,7 +144,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
                   setPreview(e.target.value.trim());
                 }
               }}
-              className="max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="w-full max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
             />
           </label>
           <label className="flex flex-col gap-0.5 text-xs">
@@ -172,12 +172,12 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 border-t border-neutral-100 pt-3">
+      <div className="flex flex-col gap-3 border-t border-neutral-100 pt-3 sm:flex-row sm:items-start">
         {bgPreview && !removeBackground && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={bgPreview} alt="" className="h-16 w-32 rounded object-cover" />
         )}
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="min-w-0 flex flex-1 flex-col gap-2">
           <span className="text-sm font-medium">Site background</span>
           <p className="text-xs text-neutral-400">
             Shows behind every page (e.g. a Fiji beach shot, or a favorite moment from a past
@@ -195,7 +195,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
                   setBgPreview(e.target.value.trim());
                 }
               }}
-              className="max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="w-full max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
             />
           </label>
           <label className="flex flex-col gap-0.5 text-xs">
@@ -233,7 +233,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
               max={100}
               value={backgroundDim}
               onChange={(e) => setBackgroundDim(Number(e.target.value))}
-              className="max-w-md accent-accent-600"
+              className="w-full max-w-md accent-accent-600"
             />
           </label>
           {bgPreview && !removeBackground && (

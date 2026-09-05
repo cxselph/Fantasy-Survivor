@@ -33,7 +33,7 @@ export function WeeklyForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <div className="flex items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <label className="flex w-32 flex-col gap-1 text-sm font-medium">
           Week
           <input
@@ -79,10 +79,10 @@ export function WeeklyForm({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-200 text-left text-xs uppercase text-neutral-500">
-              <th className="py-2">Castaway</th>
-              <th className="py-2">Won Challenge</th>
-              <th className="py-2">Survived Tribal</th>
-              <th className="py-2">Final Placement</th>
+              <th className="whitespace-nowrap py-2 pr-4">Castaway</th>
+              <th className="whitespace-nowrap py-2 pr-4">Won Challenge</th>
+              <th className="whitespace-nowrap py-2 pr-4">Survived Tribal</th>
+              <th className="whitespace-nowrap py-2">Final Placement</th>
             </tr>
           </thead>
           <tbody>
@@ -96,7 +96,7 @@ export function WeeklyForm({
                   key={castaway.id}
                   className={`border-b border-neutral-100 ${isOut ? "text-neutral-400" : ""}`}
                 >
-                  <td className="py-1.5 pr-2 font-medium">
+                  <td className="whitespace-nowrap py-1.5 pr-2 font-medium">
                     {castaway.name}
                     {castaway.isEliminated && (
                       <span className="ml-2 text-xs font-normal text-neutral-400">
