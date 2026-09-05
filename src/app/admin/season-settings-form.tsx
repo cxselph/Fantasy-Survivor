@@ -130,7 +130,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="" className="h-16 w-32 rounded object-cover" />
         )}
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="min-w-0 flex flex-1 flex-col gap-2">
           <span className="text-sm font-medium">Login page banner</span>
           <label className="flex flex-col gap-0.5 text-xs">
             Image URL
@@ -177,7 +177,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={bgPreview} alt="" className="h-16 w-32 rounded object-cover" />
         )}
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="min-w-0 flex flex-1 flex-col gap-2">
           <span className="text-sm font-medium">Site background</span>
           <p className="text-xs text-neutral-400">
             Shows behind every page (e.g. a Fiji beach shot, or a favorite moment from a past
