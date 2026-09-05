@@ -41,8 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# spreadsheets
-archive/Family-and-Friends-Survivor-50-League.xlsx
+# spreadsheets - old-season workbooks kept for reference only, never tracked
+archive/*.xlsx
 
 /src/generated/prisma
 
