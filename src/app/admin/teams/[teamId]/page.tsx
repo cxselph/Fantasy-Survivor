@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { unlockTeam, unlinkTeamUser } from "@/lib/actions/team";
+import { isDraftLocked } from "@/lib/scoring";
 import { JoinForm } from "@/app/join/join-form";
 import { DeleteTeamButton } from "../delete-team-button";
 import { LinkTeamUserForm } from "../link-team-user-form";
@@ -26,7 +27,7 @@ export default async function AdminTeamDetailPage({
   if (!team) notFound();
 
   const isMine = team.userId === session.userId;
-  const shouldHide = team.season.hideTeamsUntilLocked && !team.season.draftLocked;
+  const shouldHide = team.season.hideTeamsUntilLocked && !isDraftLocked(team.season);
   const picksHidden = shouldHide && !isMine && reveal !== "1";
 
   const castaways = await prisma.castaway.findMany({

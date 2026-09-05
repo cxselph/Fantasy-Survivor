@@ -1,4 +1,4 @@
-import { getActiveSeason, getStandings } from "@/lib/scoring";
+import { getActiveSeason, getStandings, isDraftLocked } from "@/lib/scoring";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth";
 import { unlockTeam } from "@/lib/actions/team";
@@ -28,7 +28,7 @@ export default async function JoinPage() {
     }),
   ]);
 
-  const seasonLocked = season.draftLocked;
+  const seasonLocked = isDraftLocked(season);
   const teamLocked = existingTeam?.locked ?? false;
   // Once the draft is locked (season-wide, or this team locked itself in), picks can no longer
   // change for a regular participant.

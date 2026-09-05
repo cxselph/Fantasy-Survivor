@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getActiveSeason } from "@/lib/scoring";
+import { getActiveSeason, isDraftLocked } from "@/lib/scoring";
 import { NoSeasonYet } from "@/components/no-season-yet";
 import { BackToAdmin } from "@/components/back-to-admin";
 
@@ -21,7 +21,7 @@ export default async function AdminTeamsPage() {
     orderBy: { ownerName: "asc" },
   });
 
-  const shouldHide = season.hideTeamsUntilLocked && !season.draftLocked;
+  const shouldHide = season.hideTeamsUntilLocked && !isDraftLocked(season);
 
   return (
     <div className="flex flex-col gap-6">

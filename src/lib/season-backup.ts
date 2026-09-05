@@ -15,6 +15,9 @@ export type SeasonBackup = {
     name: string;
     draftLocked: boolean;
     hideTeamsUntilLocked: boolean;
+    autoLockEnabled: boolean;
+    autoLockAt: string | null;
+    autoLockTimezone: string | null;
     mergeWeek: number | null;
     totalWeeks: number;
     bannerUrl: string | null;
@@ -78,6 +81,9 @@ export async function buildSeasonBackup(seasonId: number): Promise<SeasonBackup 
       name: season.name,
       draftLocked: season.draftLocked,
       hideTeamsUntilLocked: season.hideTeamsUntilLocked,
+      autoLockEnabled: season.autoLockEnabled,
+      autoLockAt: season.autoLockAt?.toISOString() ?? null,
+      autoLockTimezone: season.autoLockTimezone,
       mergeWeek: season.mergeWeek,
       totalWeeks: season.totalWeeks,
       bannerUrl: season.bannerUrl,
