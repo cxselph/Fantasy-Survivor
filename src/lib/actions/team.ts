@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireSession } from "@/lib/auth";
-import { getActiveSeason } from "@/lib/scoring";
+import { getActiveSeason, isDraftLocked } from "@/lib/scoring";
 
 export type SaveTeamState = { error?: string };
 
@@ -34,7 +34,7 @@ export async function saveTeam(
 
   const season = await getActiveSeason();
 
-  if (season.draftLocked && !isAdmin) {
+  if (isDraftLocked(season) && !isAdmin) {
     return { error: "The draft is locked for this season — picks can no longer be changed." };
   }
 

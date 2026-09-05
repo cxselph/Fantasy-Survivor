@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAllSeasons, getSeasonForView, getStandings } from "@/lib/scoring";
+import { getAllSeasons, getSeasonForView, getStandings, isDraftLocked } from "@/lib/scoring";
 import { getSession } from "@/lib/auth";
 import { SeasonSwitcher } from "@/components/season-switcher";
 import { NoSeasonYet } from "@/components/no-season-yet";
@@ -30,7 +30,7 @@ export default async function DashboardPage({
   // Hiding only ever applies pre-lock - once the draft locks, that's the reveal moment and
   // everyone sees everything. An admin can still temporarily override, but only for their own
   // view (the query param below), never a site-wide switch - everyone else stays hidden.
-  const shouldHide = season.hideTeamsUntilLocked && !season.draftLocked;
+  const shouldHide = season.hideTeamsUntilLocked && !isDraftLocked(season);
   const overrideActive = isAdmin && reveal === "1";
 
   const seasonQuery = seasonParam ? `season=${seasonParam}` : "";
@@ -47,7 +47,7 @@ export default async function DashboardPage({
         </h1>
         <p className="text-sm text-neutral-500">
           {season.isActive
-            ? season.draftLocked
+            ? isDraftLocked(season)
               ? "Draft locked — picks are final."
               : "Draft open — teams can still be changed."
             : "Past season — viewing final results."}

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import type { Season } from "@/generated/prisma/client";
 import { updateSeasonSettings } from "@/lib/actions/scoring";
 import { DEFAULT_ACCENT } from "@/lib/theme";
+import { COMMON_TIMEZONES, utcToZonedParts } from "@/lib/timezone";
 
 export function SeasonSettingsForm({ season }: { season: Season }) {
   const [state, formAction, pending] = useActionState(updateSeasonSettings, undefined);
@@ -13,6 +14,14 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
   const [removeBackground, setRemoveBackground] = useState(false);
   const [backgroundDim, setBackgroundDim] = useState(season.backgroundDim);
   const [accentColor, setAccentColor] = useState(season.accentColor ?? DEFAULT_ACCENT);
+  const [autoLockEnabled, setAutoLockEnabled] = useState(season.autoLockEnabled);
+  const initialAutoLockTimezone = season.autoLockTimezone ?? "America/New_York";
+  const initialAutoLockParts = season.autoLockAt
+    ? utcToZonedParts(season.autoLockAt, initialAutoLockTimezone)
+    : null;
+  const [autoLockDate, setAutoLockDate] = useState(initialAutoLockParts?.date ?? "");
+  const [autoLockTime, setAutoLockTime] = useState(initialAutoLockParts?.time ?? "");
+  const [autoLockTimezone, setAutoLockTimezone] = useState(initialAutoLockTimezone);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -83,6 +92,60 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
         draft is still open — everyone can always see their own team. An admin can still choose
         to temporarily reveal a hidden team when they genuinely need to.
       </p>
+
+      <div className="flex flex-col gap-2 border-t border-neutral-100 pt-3">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input
+            type="checkbox"
+            name="autoLockEnabled"
+            checked={autoLockEnabled}
+            onChange={(e) => setAutoLockEnabled(e.target.checked)}
+          />
+          Auto-lock the draft at a specific date and time
+        </label>
+        <p className="text-xs text-neutral-400">
+          At that moment the draft locks itself, same as checking &quot;Lock the draft&quot;
+          above — no need to be online to flip the switch. A countdown banner shows under the
+          nav bar in the meantime. Unchecking this (or the manual lock above) reopens the draft.
+        </p>
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1 text-xs font-medium">
+            Date
+            <input
+              type="date"
+              name="autoLockDate"
+              value={autoLockDate}
+              onChange={(e) => setAutoLockDate(e.target.value)}
+              className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-medium">
+            Time
+            <input
+              type="time"
+              name="autoLockTime"
+              value={autoLockTime}
+              onChange={(e) => setAutoLockTime(e.target.value)}
+              className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-medium">
+            Timezone
+            <select
+              name="autoLockTimezone"
+              value={autoLockTimezone}
+              onChange={(e) => setAutoLockTimezone(e.target.value)}
+              className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            >
+              {COMMON_TIMEZONES.map((tz) => (
+                <option key={tz.value} value={tz.value}>
+                  {tz.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </div>
 
       <div className="flex flex-col gap-1 border-t border-neutral-100 pt-3">
         <label className="flex flex-col gap-0.5 text-sm font-medium">

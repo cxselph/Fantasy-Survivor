@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { getActiveSeason, pointsForChallenge, pointsForPlacement, pointsForTribal } from "@/lib/scoring";
 import { resolveUploadedImage } from "@/lib/upload";
+import { zonedTimeToUtc } from "@/lib/timezone";
 import { ScoreEventType } from "@/generated/prisma/enums";
 import type { Prisma } from "@/generated/prisma/client";
 
@@ -163,6 +164,10 @@ export async function updateSeasonSettings(
   const seasonId = Number(formData.get("seasonId"));
   const draftLocked = formData.get("draftLocked") === "on";
   const hideTeamsUntilLocked = formData.get("hideTeamsUntilLocked") === "on";
+  const autoLockEnabled = formData.get("autoLockEnabled") === "on";
+  const autoLockDateRaw = String(formData.get("autoLockDate") || "").trim();
+  const autoLockTimeRaw = String(formData.get("autoLockTime") || "").trim();
+  const autoLockTimezoneRaw = String(formData.get("autoLockTimezone") || "").trim();
   const mergeWeekRaw = String(formData.get("mergeWeek") || "").trim();
   const mergeWeek = mergeWeekRaw ? Number(mergeWeekRaw) : null;
   const totalWeeksRaw = String(formData.get("totalWeeks") || "").trim();
@@ -184,6 +189,14 @@ export async function updateSeasonSettings(
     return { error: "Theme color must be a valid hex color." };
   }
 
+  let autoLockAt: Date | null = null;
+  if (autoLockDateRaw && autoLockTimeRaw && autoLockTimezoneRaw) {
+    autoLockAt = zonedTimeToUtc(autoLockDateRaw, autoLockTimeRaw, autoLockTimezoneRaw);
+  }
+  if (autoLockEnabled && !autoLockAt) {
+    return { error: "Set a date, time, and timezone to enable auto-lock." };
+  }
+
   const { url: bannerResolved, error: bannerError } = await resolveUploadedImage(
     formData,
     "bannerFile",
@@ -201,6 +214,9 @@ export async function updateSeasonSettings(
   const data: Prisma.SeasonUpdateInput = {
     draftLocked,
     hideTeamsUntilLocked,
+    autoLockEnabled,
+    autoLockAt,
+    autoLockTimezone: autoLockTimezoneRaw || null,
     mergeWeek,
     totalWeeks,
     siteTitle: siteTitle || null,

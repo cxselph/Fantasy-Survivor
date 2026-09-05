@@ -3,9 +3,10 @@ import { Geist, Geist_Mono, Anton } from "next/font/google";
 import "./globals.css";
 import { getSession } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
-import { getActiveSeason, getSiteTitle } from "@/lib/scoring";
+import { getActiveSeason, getSiteTitle, isDraftLocked } from "@/lib/scoring";
 import { generateAccentShades } from "@/lib/theme";
 import { NavLinks } from "./nav-links";
+import { AutoLockBanner } from "@/components/auto-lock-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,12 +43,19 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   let backgroundUrl: string | null = null;
   let backgroundDim = 45;
   let accentColor: string | null = null;
+  let autoLockBanner: { autoLockAt: string; timezone: string } | null = null;
   try {
     const season = await getActiveSeason();
     siteTitle = getSiteTitle(season);
     backgroundUrl = season.backgroundUrl;
     backgroundDim = season.backgroundDim;
     accentColor = season.accentColor;
+    if (season.autoLockEnabled && season.autoLockAt && !isDraftLocked(season)) {
+      autoLockBanner = {
+        autoLockAt: season.autoLockAt.toISOString(),
+        timezone: season.autoLockTimezone ?? "UTC",
+      };
+    }
   } catch {
     // No season configured yet - fall back to defaults.
   }
@@ -98,6 +106,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               </div>
             </div>
           </header>
+        )}
+        {session && autoLockBanner && (
+          <AutoLockBanner autoLockAt={autoLockBanner.autoLockAt} timezone={autoLockBanner.timezone} />
         )}
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
       </body>

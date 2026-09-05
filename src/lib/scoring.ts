@@ -32,6 +32,18 @@ export function getSiteTitle(season: Season) {
   return season.siteTitle?.trim() || `🔥 Survivor ${season.number} League`;
 }
 
+/**
+ * Whether the draft should be treated as locked right now: either an admin flipped the manual
+ * `draftLocked` switch, or auto-lock is enabled and its target time has passed. Auto-lock is
+ * purely a function of the current time - nothing ever writes `draftLocked` back to true, so
+ * disabling auto-lock (or pushing its time out) after the fact reopens the draft, same as
+ * flipping the manual switch off would.
+ */
+export function isDraftLocked(season: Pick<Season, "draftLocked" | "autoLockEnabled" | "autoLockAt">) {
+  if (season.draftLocked) return true;
+  return season.autoLockEnabled && season.autoLockAt != null && Date.now() >= season.autoLockAt.getTime();
+}
+
 export function pointsForChallenge(season: Season, week: number) {
   const isPostMerge = season.mergeWeek != null && week >= season.mergeWeek;
   return isPostMerge ? season.challengeWinPostMerge : season.challengeWinPreMerge;
