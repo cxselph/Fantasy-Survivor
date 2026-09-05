@@ -91,7 +91,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
             name="siteTitle"
             defaultValue={season.siteTitle ?? ""}
             placeholder={`🔥 Survivor ${season.number} League`}
-            className="max-w-md rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="w-full max-w-md rounded-md border border-neutral-300 px-3 py-2 text-sm"
           />
         </label>
         <p className="text-xs text-neutral-400">
@@ -144,7 +144,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
                   setPreview(e.target.value.trim());
                 }
               }}
-              className="max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="w-full max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
             />
           </label>
           <label className="flex flex-col gap-0.5 text-xs">
@@ -195,7 +195,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
                   setBgPreview(e.target.value.trim());
                 }
               }}
-              className="max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="w-full max-w-md rounded border border-neutral-300 px-2 py-1 text-sm"
             />
           </label>
           <label className="flex flex-col gap-0.5 text-xs">
@@ -233,7 +233,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
               max={100}
               value={backgroundDim}
               onChange={(e) => setBackgroundDim(Number(e.target.value))}
-              className="max-w-md accent-accent-600"
+              className="w-full max-w-md accent-accent-600"
             />
           </label>
           {bgPreview && !removeBackground && (
