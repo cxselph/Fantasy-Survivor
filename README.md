@@ -50,10 +50,15 @@ dashboard. Deployed on Vercel with a Neon Postgres database.
     placements (1st/2nd/3rd) are entered the same way and drive the Power Player win bonus.
   - **Season Settings** — set the merge week, and lock the draft once the season is underway so
     participants can no longer change picks (admin can still edit after locking).
+  - **Manage Seasons** — create additional seasons and switch which one is active (only the
+    active season is visible to participants), edit a season's name/number or delete it, and
+    download/restore a full per-season backup (cast, tribes, teams, and scoring history) as a
+    JSON file — restoring always creates a new season rather than overwriting one.
   - **Manage Teams** — view every team, unlock/delete one, or unlink it from its account, without
     needing to be that team's owner.
-  - **Manage Users** / **Email Settings** — invite people, resend or edit a pending invite, and
-    configure the SMTP provider used to send those invite emails.
+  - **Manage Users** / **Email Settings** — invite people, resend or edit a pending invite,
+    disable/enable or delete an account, directly set a user's password (no email round-trip
+    needed), and configure the SMTP provider used to send those invite emails.
 - The **Dashboard** and **Rules** pages are read-only and reflect the season's live scoring rules
   and standings — no rule values are hardcoded in the UI.
 
