@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, createUserSession } from "@/lib/auth";
 import { hashPassword } from "@/lib/password";
-import { generateToken, hashToken, INVITE_TOKEN_TTL_MS } from "@/lib/tokens";
+import { generateToken, hashToken, INVITE_TOKEN_TTL_MS, RESET_TOKEN_TTL_MS } from "@/lib/tokens";
 import { sendEmail, type SendEmailResult } from "@/lib/email/send-email";
 import { inviteEmail } from "@/lib/email/templates";
 import { normalizeEmail, appUrl } from "@/lib/users";
@@ -168,6 +168,44 @@ export async function setUserPassword(
 
   revalidatePath("/admin/users");
   return { success: "Password set." };
+}
+
+export type LinkResult = { link?: string; error?: string };
+
+// Generates a fresh invite/reset token exactly like the email-sending flows do, but returns the
+// raw link instead of emailing it - for someone whose email genuinely isn't reaching them (see
+// the invite email status badges) and needs the link handed to them some other way (text,
+// in person, etc). Same token, same one-time-use/expiry semantics as the emailed link - this
+// isn't a separate, less secure path, just a different delivery channel.
+
+export async function createInviteLink(userId: number): Promise<LinkResult> {
+  await requireAdmin();
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { error: "User not found." };
+  if (user.passwordHash) return { error: "This account has already been claimed." };
+
+  const rawToken = generateToken();
+  const inviteTokenHash = hashToken(rawToken);
+  const inviteTokenExpiresAt = new Date(Date.now() + INVITE_TOKEN_TTL_MS);
+  await prisma.user.update({ where: { id: userId }, data: { inviteTokenHash, inviteTokenExpiresAt } });
+
+  return { link: `${appUrl()}/accept-invite?token=${rawToken}` };
+}
+
+export async function createPasswordResetLink(userId: number): Promise<LinkResult> {
+  await requireAdmin();
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { error: "User not found." };
+  if (!user.passwordHash) return { error: 'This account hasn\'t been claimed yet - use "Copy invite link" instead.' };
+
+  const rawToken = generateToken();
+  const resetTokenHash = hashToken(rawToken);
+  const resetTokenExpiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+  await prisma.user.update({ where: { id: userId }, data: { resetTokenHash, resetTokenExpiresAt } });
+
+  return { link: `${appUrl()}/reset-password?token=${rawToken}` };
 }
 
 export async function unlockUser(userId: number) {

@@ -12,6 +12,7 @@ import {
   type UpdateInviteState,
 } from "@/lib/actions/users";
 import { DeleteUserButton } from "./delete-user-button";
+import { CopyLinkButton } from "./copy-link-button";
 
 // Shared column template so the header and every row (regardless of which fields/actions it
 // shows) line up. Set via inline style rather than a Tailwind arbitrary-value class - a
@@ -235,6 +236,8 @@ export function UserRow({
         >
           {settingPassword ? "Cancel" : "Set password"}
         </button>
+
+        <CopyLinkButton userId={user.id} kind={isPending ? "invite" : "reset"} />
       </div>
       </div>
 
