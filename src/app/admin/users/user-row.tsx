@@ -24,7 +24,7 @@ type UserRowUser = {
   name: string;
   email: string;
   role: "ADMIN" | "MEMBER";
-  lastInviteEmailStatus: "SENT" | "FAILED" | "NOT_CONFIGURED" | null;
+  lastInviteEmailStatus: "SENT" | "FAILED" | "NOT_CONFIGURED" | "BOUNCED" | null;
   lastInviteEmailError: string | null;
   lastInviteEmailAt: Date | null;
 };
@@ -102,12 +102,13 @@ function InviteEmailBadge({ user }: { user: UserRowUser }) {
   if (user.lastInviteEmailStatus === "NOT_CONFIGURED") {
     return <span className="text-xs text-yellow-700">⚠ SMTP not configured ({when})</span>;
   }
+  const label = user.lastInviteEmailStatus === "BOUNCED" ? "↩ Bounced" : "✗ Email failed";
   return (
     <span className="flex items-center gap-1.5 text-xs text-red-600">
-      ✗ Email failed ({when})
+      {label} ({when})
       <EmailErrorDialog
         email={user.email}
-        label="✗ Email failed"
+        label={label}
         colorClass="text-red-600"
         when={when}
         detail={user.lastInviteEmailError ?? "No further details recorded."}

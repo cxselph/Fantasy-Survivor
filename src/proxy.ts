@@ -24,7 +24,9 @@ const PUBLIC_PATHS = ["/login", "/setup", "/accept-invite", "/forgot-password", 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (PUBLIC_PATHS.includes(pathname)) {
+  // Webhooks from external services (e.g. SMTP2GO's bounce notifications) never carry our
+  // session cookie - each one authenticates itself in its own route handler, not via this gate.
+  if (PUBLIC_PATHS.includes(pathname) || pathname.startsWith("/api/webhooks/")) {
     return NextResponse.next();
   }
 

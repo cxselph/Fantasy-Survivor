@@ -105,6 +105,7 @@ enum InviteEmailStatus {
   SENT
   FAILED
   NOT_CONFIGURED // SMTP wasn't set up in Admin -> Email Settings when this send was attempted
+  BOUNCED // SMTP accepted it, but the recipient server bounced it later - reported asynchronously by src/app/api/webhooks/smtp2go, well after the send itself already returned SENT
 }
 
 // A real per-person account. Replaces the old shared-password login. Invites and password
