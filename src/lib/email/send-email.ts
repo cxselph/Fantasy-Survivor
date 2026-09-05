@@ -38,10 +38,18 @@ async function getSmtpConfig() {
   };
 }
 
+export type SendEmailResult =
+  | { status: "sent" }
+  | { status: "not_configured" }
+  | { status: "failed"; error: string };
+
 // SMTP config is admin-managed (Admin -> Email Settings), stored encrypted in the DB - see
 // src/lib/actions/smtp-settings.ts. Swapping providers later (SMTP2GO, M365, etc.) is just a
 // matter of what the admin types into that form; this function doesn't change.
-export async function sendEmail(message: EmailMessage): Promise<void> {
+//
+// Never throws - callers (invite/reset/test-email flows) need a result they can persist and
+// show the admin, not an exception that aborts whatever DB writes already happened.
+export async function sendEmail(message: EmailMessage): Promise<SendEmailResult> {
   const config = await getSmtpConfig();
 
   if (!config) {
@@ -52,7 +60,7 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
       subject: message.subject,
       text: message.text,
     });
-    return;
+    return { status: "not_configured" };
   }
 
   const transport = nodemailer.createTransport({
@@ -62,11 +70,18 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
     auth: { user: config.username, pass: config.password },
   });
 
-  await transport.sendMail({
-    from: `"${config.fromName}" <${config.fromEmail}>`,
-    to: message.to,
-    subject: message.subject,
-    html: message.html,
-    text: message.text,
-  });
+  try {
+    await transport.sendMail({
+      from: `"${config.fromName}" <${config.fromEmail}>`,
+      to: message.to,
+      subject: message.subject,
+      html: message.html,
+      text: message.text,
+    });
+    return { status: "sent" };
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    console.error(`[email] Failed to send to ${message.to}:`, error);
+    return { status: "failed", error };
+  }
 }

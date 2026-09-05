@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import {
   updateInvite,
   updateUser,
@@ -24,7 +24,98 @@ type UserRowUser = {
   name: string;
   email: string;
   role: "ADMIN" | "MEMBER";
+  lastInviteEmailStatus: "SENT" | "FAILED" | "NOT_CONFIGURED" | "BOUNCED" | null;
+  lastInviteEmailError: string | null;
+  lastInviteEmailAt: Date | null;
 };
+
+// Full SMTP/bounce error text can run long (multi-line diagnostics, provider-specific detail) -
+// too much to cram into a table row, so it lives behind a "View error" button in a native
+// <dialog> instead of a hover tooltip.
+function EmailErrorDialog({ email, label, colorClass, when, detail }: {
+  email: string;
+  label: string;
+  colorClass: string;
+  when: string | undefined;
+  detail: string;
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => dialogRef.current?.showModal()}
+        className="text-xs font-semibold text-neutral-500 underline hover:text-neutral-700 hover:no-underline"
+      >
+        View error
+      </button>
+      <dialog
+        ref={dialogRef}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) dialogRef.current?.close();
+        }}
+        className="m-auto w-full max-w-md rounded-lg border border-neutral-200 p-0 shadow-xl backdrop:bg-black/40"
+      >
+        <div className="flex flex-col gap-3 p-5">
+          <h3 className="font-semibold text-neutral-900">Email delivery details</h3>
+          <dl className="flex flex-col gap-2 text-sm">
+            <div>
+              <dt className="text-xs font-medium text-neutral-400">Recipient</dt>
+              <dd>{email}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-neutral-400">Status</dt>
+              <dd className={colorClass}>
+                {label}
+                {when ? ` — ${when}` : ""}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-neutral-400">Details</dt>
+              <dd className="whitespace-pre-wrap break-words font-mono text-xs text-neutral-700">{detail}</dd>
+            </div>
+          </dl>
+          <button
+            type="button"
+            onClick={() => dialogRef.current?.close()}
+            className="self-end rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-semibold hover:border-neutral-400"
+          >
+            Close
+          </button>
+        </div>
+      </dialog>
+    </>
+  );
+}
+
+function InviteEmailBadge({ user }: { user: UserRowUser }) {
+  if (!user.lastInviteEmailStatus) return null;
+  const when = user.lastInviteEmailAt?.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  if (user.lastInviteEmailStatus === "SENT") {
+    return <span className="text-xs text-green-700">✓ Emailed {when}</span>;
+  }
+  if (user.lastInviteEmailStatus === "NOT_CONFIGURED") {
+    return <span className="text-xs text-yellow-700">⚠ SMTP not configured ({when})</span>;
+  }
+  const label = user.lastInviteEmailStatus === "BOUNCED" ? "↩ Bounced" : "✗ Email failed";
+  return (
+    <span className="flex items-center gap-1.5 text-xs text-red-600">
+      {label} ({when})
+      <EmailErrorDialog
+        email={user.email}
+        label={label}
+        colorClass="text-red-600"
+        when={when}
+        detail={user.lastInviteEmailError ?? "No further details recorded."}
+      />
+    </span>
+  );
+}
 
 export function UserRow({
   user,
@@ -94,6 +185,7 @@ export function UserRow({
         {status === "active" && <span className="font-medium text-green-700">Active</span>}
         {status === "disabled" && <span className="font-medium text-neutral-500">Disabled</span>}
         {isLocked && <span className="font-medium text-red-700">🔒 Locked out</span>}
+        {isPending && <InviteEmailBadge user={user} />}
         {state?.error && <span className="text-xs text-red-600">{state.error}</span>}
         {state?.success && <span className="text-xs text-green-700">{state.success}</span>}
       </div>

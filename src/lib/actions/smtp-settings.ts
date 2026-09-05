@@ -79,16 +79,16 @@ export async function sendTestEmailAction(
     return { error: "Enter a valid email address to send the test to." };
   }
 
-  try {
-    await sendEmail({
-      to,
-      subject: "Test email",
-      html: `<p>This is a test email from the Fantasy Survivor League site, sent ${new Date().toLocaleString()} to confirm SMTP delivery is working.</p>`,
-      text: `This is a test email from the Fantasy Survivor League site, sent ${new Date().toLocaleString()} to confirm SMTP delivery is working.`,
-    });
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : "Failed to send test email." };
-  }
+  const result = await sendEmail({
+    to,
+    subject: "Test email",
+    html: `<p>This is a test email from the Fantasy Survivor League site, sent ${new Date().toLocaleString()} to confirm SMTP delivery is working.</p>`,
+    text: `This is a test email from the Fantasy Survivor League site, sent ${new Date().toLocaleString()} to confirm SMTP delivery is working.`,
+  });
 
-  return { success: `Test email sent to ${to} (or logged to the server console if SMTP isn't configured yet).` };
+  if (result.status === "failed") return { error: result.error };
+  if (result.status === "not_configured") {
+    return { error: "SMTP isn't configured above yet, so nothing was actually sent - fill in the settings first." };
+  }
+  return { success: `Test email sent to ${to}.` };
 }
