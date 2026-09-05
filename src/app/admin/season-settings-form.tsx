@@ -125,7 +125,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 border-t border-neutral-100 pt-3">
+      <div className="flex flex-col gap-3 border-t border-neutral-100 pt-3 sm:flex-row sm:items-start">
         {preview && !removeBanner && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="" className="h-16 w-32 rounded object-cover" />
@@ -172,7 +172,7 @@ export function SeasonSettingsForm({ season }: { season: Season }) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 border-t border-neutral-100 pt-3">
+      <div className="flex flex-col gap-3 border-t border-neutral-100 pt-3 sm:flex-row sm:items-start">
         {bgPreview && !removeBackground && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={bgPreview} alt="" className="h-16 w-32 rounded object-cover" />
